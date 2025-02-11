@@ -1,8 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <sys/mman.h>
-#define ALIGNMENT 8 // must be a multiple of 2
-#define ALIGN(size) ((size + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
+# include "malloc.h"
 
 int main() {
     int N = 8;
