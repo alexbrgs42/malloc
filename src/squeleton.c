@@ -20,6 +20,8 @@ void    free(void *ptr) {
 
 void    *malloc(size_t size) {
 
+    // size > 0 ?
+
     // TINY
 
     // SMALL
@@ -85,5 +87,5 @@ void    show_alloc_mem_ex() {
     // BONUS - history of allocations, or an hexa dump of the allocated zones
 }
 
-// DO MULTI-THREAD SAFETY
+// DO THREAD SAFETY
 // MANAGE MALLOC DEBUG ENVIRONMENT VARIABLES
