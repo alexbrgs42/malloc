@@ -53,3 +53,7 @@ dkms.conf
 
 # vscode config
 .vscode
+
+.gitignore
+LICENSE
+README.md

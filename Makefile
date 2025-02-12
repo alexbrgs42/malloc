@@ -1,12 +1,16 @@
-SRC_PATH	:=	ressources
+SRC_PATH	:=	src
 OBJ_PATH	:=	obj
 
-SRC	:=	$(SRC_PATH)/align.c
+SRC_FILES	:=	main.c squeleton.c
+
+SRC	:=	$(addprefix $(SRC_PATH)/, $(SRC_FILES))
 OBJ	:=	$(patsubst $(SRC_PATH)/%, $(OBJ_PATH)/%, $(SRC:.c=.o))
 
 NAME	:=	executable
 CFLAGS	:=	-Wall -Wextra -Werror
 INCL	:=	-Iinclude
+LIB		:=	-Llibft -lft
+LIBFT	:=	libft/libft.a
 
 #################################################################
 #                                                               #
@@ -15,13 +19,16 @@ INCL	:=	-Iinclude
 #################################################################
 
 $(OBJ_PATH)/%.o:	$(SRC_PATH)/%.c
-	gcc $(CFLAGS) $(INCL) -c -o $@ $<
+	gcc $(CFLAGS) $(INCL) -c -o $@ $< $(LIB)
 
-$(NAME):	$(OBJ_PATH) $(OBJ)
-	gcc $(CFLAGS) $(INCL) $(OBJ) -o $(NAME)
+$(NAME):	$(LIBFT) $(OBJ_PATH) $(OBJ)
+	gcc $(CFLAGS) $(INCL) $(OBJ) -o $(NAME) $(LIB)
 
 $(OBJ_PATH):
 	mkdir -p $(OBJ_PATH)
+
+$(LIBFT):
+	make -C libft
 
 #################################################################
 #                                                               #
@@ -33,9 +40,11 @@ all:	$(NAME)
 
 clean:
 	rm -rf $(OBJ_PATH)
+	make clean -C libft
 
 fclean:	clean
 	rm -rf $(NAME)
+	make fclean -C libft
 
 re: fclean all
 

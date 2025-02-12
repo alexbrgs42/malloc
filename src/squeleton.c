@@ -1,7 +1,8 @@
 #include "malloc.h"
 
-// 1 global for alllocation management and 1 for thread safety
+// 1 global for allocation management and 1 for thread safety
 
+/*
 void    *realloc(void *ptr, size_t size) {
 
     // ...?
@@ -86,6 +87,7 @@ void    show_alloc_mem_ex() {
 
     // BONUS - history of allocations, or an hexa dump of the allocated zones
 }
+*/
 
 // DO THREAD SAFETY
 // MANAGE MALLOC DEBUG ENVIRONMENT VARIABLES
