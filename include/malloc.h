@@ -5,6 +5,7 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <stdint.h>
+# include <pthread.h>
 # include <sys/mman.h>
 # include "../libft/include/libft.h"
 
@@ -14,8 +15,29 @@
 // #                                                               #
 // #################################################################
 
-#define ALIGNMENT 8
-#define ALIGN(size) ((size + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
+# define ALIGNMENT 8
+# define ALIGN(size) ((size + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
+
+# define FREE_BLOCK(size) size | 0
+# define USED_BLOCK(size) size | 1
+
+# define N getpagesize()
+# define M 30 * getpagesize()
+
+// #################################################################
+// #                                                               #
+// #                             ENUMS                             #
+// #                                                               #
+// #################################################################
+
+typedef enum e_type t_type;
+
+enum e_type {
+    TINY,
+    SMALL,
+    LARGE,
+    NO_TYPE
+};
 
 // #################################################################
 // #                                                               #
@@ -24,25 +46,31 @@
 // #################################################################
 
 typedef struct s_free_historic  t_free_historic;
-typedef struct s_allocs         t_allocs;
 typedef struct s_metadata       t_metadata;
+typedef struct s_allocs         t_allocs;
+typedef struct s_arena          t_arena;
 
 struct s_allocs {
-    uint32_t        tiny_arena;
-    uint32_t        small_arena;
-    t_free_historic *head;
+    t_arena         *arenas;
+    t_free_historic *frees[3];
+};
+
+struct s_arena {
+    t_type  type;
+    size_t  *addr;
+    t_arena *next;
 };
 
 struct s_free_historic {
-    uint32_t        addr;
     size_t          size;
+    size_t          *addr;
     t_free_historic *next;
 };
 
 struct s_metadata {
     size_t      size;
-    uint32_t    prev;
-    uint32_t    next;
+    size_t      *prev;
+    size_t      *next;
 };
 
 // #################################################################
@@ -51,6 +79,37 @@ struct s_metadata {
 // #                                                               #
 // #################################################################
 
-extern t_allocs alloc_table;
+extern t_allocs         *arenas;
+extern pthread_mutex_t  memory;
+
+// #################################################################
+// #                                                               #
+// #                           FUNCTIONS                           #
+// #                                                               #
+// #################################################################
+
+// allocation.c
+void    *ft_realloc(void *ptr, size_t size);
+void    ft_free(void *ptr);
+void    *ft_malloc(size_t size);
+void    *tiny_allocation(size_t size);
+void    *small_allocation(size_t size);
+void    *large_allocation(size_t size);
+void    set_metadata(size_t *ptr, size_t size, size_t *prev, size_t *next);
+void    mark_chunk(t_metadata *ptr, size_t size);
+
+// best_fit.c
+size_t  *best_fit(size_t size, t_type arena);
+int     create_arena(t_arena *new_arena, t_type arena_type);
+
+// display.c
+void    show_alloc_mem();
+void    show_alloc_mem_ex();
+
+// double_linked_list.c
+
+
+// linked_list.c
+
 
 #endif

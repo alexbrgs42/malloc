@@ -1,9 +1,11 @@
 # include "../include/malloc.h"
 
-t_allocs    alloc_table = { 0, 0, NULL };
+t_allocs        *arenas = NULL;
+pthread_mutex_t memory = PTHREAD_MUTEX_INITIALIZER;
 
 int main() {
-    ft_strlen("hello");
-    printf("{ %d %d %p }\n", alloc_table.tiny_arena, alloc_table.small_arena, alloc_table.head);
-    printf("%d\n", ALIGN(10));
+
+    return 0;
 }
+
+// NOT COALESCE BETWEEN TINY AND SMALL
