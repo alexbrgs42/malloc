@@ -1,6 +1,32 @@
 #include "../include/malloc.h"
 
-size_t  *best_fit(size_t size, t_type arena_type) {
+size_t  *get_block(size_t size, t_type type) {
+
+    size_t  *best = NULL;
+
+    if (arenas == NULL) {
+        arenas = mmap(NULL, sizeof(t_allocs *), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+        if (arenas == MAP_FAILED) {
+            printf("Error with mmap syscall.\n");
+            return NULL;
+        }
+        arenas->arenas = NULL;
+        arenas->frees = NULL;
+    }
+
+    if (arenas->arenas != NULL) {
+        best = best_fit(size, type);
+    }
+
+    // No arena or arenas full
+    if (best == NULL) {
+        best = create_arena(type, get_arena_size_with_block(size));
+    }
+
+    return best;
+}
+
+size_t  *best_fit(size_t size, t_type type) {
 
     size_t  *head = NULL;
     size_t  *tail = NULL;
@@ -8,9 +34,9 @@ size_t  *best_fit(size_t size, t_type arena_type) {
     t_arena *curr_arena = arenas->arenas;
 
     while (curr_arena->addr != NULL) {
-        if (curr_arena->type == arena_type) {
+        if (curr_arena->type == type) {
             head = curr_arena->addr;
-            tail = head + (arena_type == TINY ? N : M);
+            tail = head + (type == TINY ? N : M);
             while (head < tail) {
                 if ((*head & 1) == 0 && *head >= size && (best == NULL || *head < *best))
                     best = head;
@@ -19,33 +45,56 @@ size_t  *best_fit(size_t size, t_type arena_type) {
         }
         curr_arena = curr_arena->next;
     }
-
-    if (best == NULL) {
-        int ret = create_arena(curr_arena, arena_type);
-        if (ret == EXIT_FAILURE)
-            return NULL;
-        return curr_arena->addr;
-    }
-
     return best;
 }
 
-// add { NO_TYPE, NULL, NULL} to new next
-void    empty_arena(t_arena *empty_a) {
-    t_arena a;
+size_t  *create_arena(t_type type, size_t size) {
 
-    a.addr = NULL;
-    a.next = NULL;
-    a.type = NO_TYPE;
-    *empty_a = a;
+    size_t *addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if (addr == MAP_FAILED)
+        return NULL;
+    add_arena(addr, type);
+    set_metadata(addr, size, NULL, NULL);
+    return addr;
 }
 
-int create_arena(t_arena *new_arena, t_type arena_type) {
-    new_arena->addr = mmap(NULL, (arena_type == TINY ? N : M), PROT_WRITE | PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
-    if (new_arena->addr == MAP_FAILED)
-        return EXIT_FAILURE;
-    new_arena->type = arena_type;
-    empty_arena(new_arena->next);
-    set_metadata(new_arena->addr, (arena_type == TINY ? FREE_BLOCK(N) : FREE_BLOCK(M)), NULL, NULL);
-    return EXIT_SUCCESS;
+size_t  get_arena_size_with_block(size_t blk_size) {
+    // TINY
+    if (blk_size <= (size_t)(N / 100))
+        return (size_t)N;
+    // SMALL
+    else if (blk_size <= (size_t)(M / 100))
+        return (size_t)M;
+    // LARGE
+    return blk_size;
+}
+
+void    add_arena(size_t *addr, t_type type) {
+    t_arena *new_arena;
+    t_arena *last_arena;
+    
+    new_arena = (t_arena *)(arenas + sizeof(t_allocs));
+    last_arena = arenas->arenas;
+    if (last_arena != NULL) {
+        last_arena = get_last_arena();
+        new_arena = (t_arena *)(last_arena + sizeof(t_arena));
+    }
+    new_arena->type = type;
+    new_arena->addr = addr;
+    new_arena->next = NULL;
+    if (arenas->arenas == NULL)
+        arenas->arenas = new_arena;
+    else
+        last_arena->next = new_arena;
+}
+
+/// @brief Get last arena of the linked list. There must be at least one arena.
+/// @return The lst arena of the linked list.
+t_arena *get_last_arena() {
+    t_arena *last_arena;
+
+    last_arena = arenas->arenas;
+    while (last_arena->next != NULL)
+        last_arena = last_arena->next;
+    return last_arena;
 }

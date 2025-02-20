@@ -1,7 +1,5 @@
 #include "../include/malloc.h"
 
-// 1 global for allocation management and 1 for thread safety
-
 void    *ft_realloc(void *ptr, size_t size); // mutex
 
 void    ft_free(void *ptr) {
@@ -20,7 +18,6 @@ void    ft_free(void *ptr) {
     pthread_mutex_unlock(&memory);
 }
 
-// enum for exit status ?
 void    *ft_malloc(size_t size) {
 
     size_t  allocated_size = ALIGN(size + sizeof(t_metadata));
@@ -48,25 +45,29 @@ void    *ft_malloc(size_t size) {
     return result;
 }
 
-void set_metadata(size_t *ptr, size_t size, size_t *prev, size_t *next) {
+void    set_metadata(size_t *ptr, size_t size, size_t *prev, size_t *next) {
     t_metadata  header = { size, prev, next };
     *(t_metadata *)ptr = header;
 }
 
+// VERIFY
 void    *tiny_allocation(size_t size) {
 
-    size_t *ptr = best_fit(size, TINY);
+    size_t *ptr = get_block(size, TINY);
     if (ptr == NULL)
         return NULL;
+
+    printf("real ptr: %p\n", ptr);
 
     mark_chunk((t_metadata *)ptr, size);
 
     return (void *)(ptr + sizeof(t_metadata));
 }
 
+// VERIFY
 void    *small_allocation(size_t size) {
 
-    size_t *ptr = best_fit(size, SMALL);
+    size_t *ptr = get_block(size, SMALL);
     if (ptr == NULL)
         return NULL;
 
@@ -87,6 +88,7 @@ void    *large_allocation(size_t size) {
     return NULL; // change
 }
 
+// VERIFY prev ?
 void    mark_chunk(t_metadata *ptr, size_t size) {
 
     if (ptr->size != size)

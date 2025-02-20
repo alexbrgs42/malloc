@@ -21,8 +21,8 @@
 # define FREE_BLOCK(size) size | 0
 # define USED_BLOCK(size) size | 1
 
-# define N getpagesize()
-# define M 30 * getpagesize()
+# define N 4 * getpagesize()
+# define M 32 * getpagesize()
 
 // #################################################################
 // #                                                               #
@@ -52,24 +52,30 @@ typedef struct s_arena          t_arena;
 
 struct s_allocs {
     t_arena         *arenas;
-    t_free_historic *frees[3];
+    t_free_historic *frees;
 };
 
 struct s_arena {
     t_type  type;
+    size_t  size;
+    // should change type ?
     size_t  *addr;
     t_arena *next;
 };
 
 struct s_free_historic {
+    t_type          type;
     size_t          size;
+    // should change type ?
     size_t          *addr;
     t_free_historic *next;
 };
 
 struct s_metadata {
     size_t      size;
+    // should change type ?
     size_t      *prev;
+    // should change type ?
     size_t      *next;
 };
 
@@ -99,17 +105,15 @@ void    set_metadata(size_t *ptr, size_t size, size_t *prev, size_t *next);
 void    mark_chunk(t_metadata *ptr, size_t size);
 
 // best_fit.c
-size_t  *best_fit(size_t size, t_type arena);
-int     create_arena(t_arena *new_arena, t_type arena_type);
+size_t  *get_block(size_t size, t_type type);
+size_t  *best_fit(size_t size, t_type type);
+size_t  *create_arena(t_type type, size_t size);
+size_t  get_arena_size_with_block(size_t blk_size);
+void    add_arena(size_t *addr, t_type type);
+t_arena *get_last_arena();
 
 // display.c
 void    show_alloc_mem();
 void    show_alloc_mem_ex();
-
-// double_linked_list.c
-
-
-// linked_list.c
-
 
 #endif
