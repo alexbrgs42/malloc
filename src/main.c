@@ -4,6 +4,7 @@ t_allocs        *arenas = NULL;
 pthread_mutex_t memory = PTHREAD_MUTEX_INITIALIZER;
 
 // size is ALIGN(size + sizeof(t_metadata)), real size not available.
+// PATCH: next is not NULL but should be
 
 int main() {
 
