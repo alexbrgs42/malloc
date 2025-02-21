@@ -20,83 +20,75 @@ void    ft_free(void *ptr) {
 
 void    *ft_malloc(size_t size) {
 
-    size_t  allocated_size = ALIGN(size + sizeof(t_metadata));
-    void    *result = NULL;
+    size_t  aligned_size = ALIGN(size + sizeof(t_metadata));
+    void    *ptr = NULL;
 
     if (size <= 0)
         return NULL;
 
     pthread_mutex_lock(&memory);
     // TINY
-    if (allocated_size <= (size_t)(N / 100))
-        result = tiny_allocation(allocated_size);
+    if (aligned_size <= (size_t)(N / 100))
+        ptr = tiny_allocation(aligned_size);
     // SMALL
-    else if (allocated_size <= (size_t)(M / 100))
-        result = small_allocation(allocated_size);
+    else if (aligned_size <= (size_t)(M / 100))
+        ptr = small_allocation(aligned_size);
     // LARGE
-    else if (allocated_size > (size_t)(M / 100))
-        result = large_allocation(allocated_size);
+    else if (aligned_size > (size_t)(M / 100))
+        ptr = large_allocation(aligned_size);
 
     // TOO BIG
 
-    // HANDLE STATUS
-
     pthread_mutex_unlock(&memory);
-    return result;
+    return ptr;
 }
 
-void    set_metadata(size_t *ptr, size_t size, size_t *prev, size_t *next) {
-    t_metadata  header = { size, prev, next };
-    *(t_metadata *)ptr = header;
+void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next) {
+    ptr->size = size;
+    ptr->prev = prev;
+    ptr->next = next;
 }
 
-// VERIFY
 void    *tiny_allocation(size_t size) {
 
-    size_t *ptr = get_block(size, TINY);
+    void *ptr = get_block(size, TINY);
     if (ptr == NULL)
         return NULL;
-
-    printf("real ptr: %p\n", ptr);
-
-    mark_chunk((t_metadata *)ptr, size);
-
+    mark_block(ptr, size);
     return (void *)(ptr + sizeof(t_metadata));
 }
 
-// VERIFY
 void    *small_allocation(size_t size) {
 
-    size_t *ptr = get_block(size, SMALL);
+    void *ptr = get_block(size, SMALL);
     if (ptr == NULL)
         return NULL;
-
-    mark_chunk((t_metadata *)ptr, size);
-
+    mark_block(ptr, size);
     return (void *)(ptr + sizeof(t_metadata));
 }
 
 void    *large_allocation(size_t size) {
 
-    (void)size;
+    size_t  aligned_size = ALIGN(size + sizeof(t_metadata));
 
-    // MAX SIZE ?
-
-    // MMAP
-
-    // MARK FIRST BIT
-    return NULL; // change
+    void *ptr = mmap(NULL, aligned_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if (ptr == MAP_FAILED)
+        return NULL;
+    ft_bzero(ptr, aligned_size);
+    add_arena(ptr, LARGE, aligned_size);
+    set_metadata(ptr, USED_BLOCK(aligned_size), NULL, NULL);
+    return (void *)(ptr + sizeof(t_metadata));
 }
 
-// VERIFY prev ?
-void    mark_chunk(t_metadata *ptr, size_t size) {
+// verify that used or unused block is maintained with size calculation
 
-    if (ptr->size != size)
-        set_metadata((size_t *)(ptr + size), ptr->size - size, (size_t *)ptr, ptr->next);
-    if (ptr->next != NULL)
-        set_metadata(ptr->next, ((t_metadata *)(ptr->next))->size, (size_t *)(ptr + size), ((t_metadata *)(ptr->next))->next);
-    set_metadata((size_t *)ptr, size, ptr->prev, (ptr->size != size ? (size_t *)(ptr + size) : ptr->next));
-    ptr->size = USED_BLOCK(ptr->size);
+void    mark_block(void *ptr, size_t size) {
+
+    if (ABSOLUT_SIZE(((t_metadata *)ptr)->size) != size) {
+        set_metadata(ptr + size, ABSOLUT_SIZE(((t_metadata *)ptr)->size) - size, ptr, ((t_metadata *)ptr)->next);
+    }
+    if (((t_metadata *)ptr)->next != NULL)
+        set_metadata(((t_metadata *)ptr)->next, ((t_metadata *)(((t_metadata *)ptr)->next))->size, ptr + size, ((t_metadata *)(((t_metadata *)ptr)->next))->next);
+    set_metadata(ptr, size, ((t_metadata *)ptr)->prev, (ABSOLUT_SIZE(((t_metadata *)ptr)->size) != size ? ptr + size : ((t_metadata *)ptr)->next));
+    ((t_metadata *)ptr)->size = USED_BLOCK(((t_metadata *)ptr)->size);
 }
-
-// REMOVE ft_

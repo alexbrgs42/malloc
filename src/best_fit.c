@@ -1,10 +1,11 @@
 #include "../include/malloc.h"
 
-size_t  *get_block(size_t size, t_type type) {
+void  *get_block(size_t size, t_type type) {
 
-    size_t  *best = NULL;
+    void  *best = NULL;
 
     if (arenas == NULL) {
+        // bad
         arenas = mmap(NULL, sizeof(t_allocs *), PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
         if (arenas == MAP_FAILED) {
             printf("Error with mmap syscall.\n");
@@ -26,21 +27,20 @@ size_t  *get_block(size_t size, t_type type) {
     return best;
 }
 
-size_t  *best_fit(size_t size, t_type type) {
+void  *best_fit(size_t size, t_type type) {
 
-    size_t  *head = NULL;
-    size_t  *tail = NULL;
-    size_t  *best = NULL;
+    void  *head = NULL;
+    void  *best = NULL;
     t_arena *curr_arena = arenas->arenas;
 
-    while (curr_arena->addr != NULL) {
+    while (curr_arena != NULL) {
         if (curr_arena->type == type) {
             head = curr_arena->addr;
-            tail = head + (type == TINY ? N : M);
-            while (head < tail) {
-                if ((*head & 1) == 0 && *head >= size && (best == NULL || *head < *best))
+            while (head != NULL) {
+                if ((((t_metadata *)head)->size & 1) == 0 && ((t_metadata *)head)->size >= size && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
                     best = head;
-                head = head + *head;
+                }
+                head = ((t_metadata *)head)->next;
             }
         }
         curr_arena = curr_arena->next;
@@ -48,12 +48,13 @@ size_t  *best_fit(size_t size, t_type type) {
     return best;
 }
 
-size_t  *create_arena(t_type type, size_t size) {
+void  *create_arena(t_type type, size_t size) {
 
-    size_t *addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    void *addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (addr == MAP_FAILED)
         return NULL;
-    add_arena(addr, type);
+    ft_bzero(addr, size);
+    add_arena(addr, type, size);
     set_metadata(addr, size, NULL, NULL);
     return addr;
 }
@@ -69,7 +70,7 @@ size_t  get_arena_size_with_block(size_t blk_size) {
     return blk_size;
 }
 
-void    add_arena(size_t *addr, t_type type) {
+void    add_arena(void *addr, t_type type, size_t size) {
     t_arena *new_arena;
     t_arena *last_arena;
     
@@ -81,6 +82,7 @@ void    add_arena(size_t *addr, t_type type) {
     }
     new_arena->type = type;
     new_arena->addr = addr;
+    new_arena->size = size;
     new_arena->next = NULL;
     if (arenas->arenas == NULL)
         arenas->arenas = new_arena;
