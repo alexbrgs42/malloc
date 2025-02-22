@@ -12,8 +12,8 @@ void    show_alloc_mem() {
     }
     current_arena = arenas->arenas;
     while (current_arena != NULL) {
-        print_arena_info(current_arena);
-        total += print_allocs_in_arena(current_arena->addr);
+        show_arena_info(current_arena);
+        total += show_allocs_in_arena(current_arena->addr);
         current_arena = current_arena->next;
     }
     printf("Total : %ld bytes\n", total);
@@ -27,7 +27,7 @@ void    show_alloc_mem_ex() {
     // BONUS - history of allocations, or an hexa dump of the allocated zones
 }
 
-void    print_metadata(void *ptr) {
+void    show_metadata(void *ptr) {
     t_metadata  *meta;
     char        *format;
 
@@ -41,27 +41,14 @@ void    print_metadata(void *ptr) {
     }
 }
 
-char    *get_arena_text_type(t_arena *arena) {
-    t_type  t = arena->type;
-
-    switch (t) {
-        case TINY:
-            return "TINY";
-        case SMALL:
-            return "SMALL";
-        default:
-            return "LARGE";
-    }
-}
-
-void    print_arena_info(t_arena *arena) {
+void    show_arena_info(t_arena *arena) {
     void    *start = arena->addr;
     // void    *end = start + arena->size;
 
     printf("%s : 0x%lX\n", get_arena_text_type(arena), (uintptr_t)start);
 }
 
-size_t  print_allocs_in_arena(void *arena) {
+size_t  show_allocs_in_arena(void *arena) {
     t_metadata  *meta = (t_metadata *)arena;
     size_t      total = 0;
     size_t      size = 0;

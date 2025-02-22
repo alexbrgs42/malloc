@@ -88,30 +88,37 @@ extern pthread_mutex_t  memory;
 
 // allocation.c
 void    *ft_realloc(void *ptr, size_t size);
+void    *ft_malloc(size_t size);
+void    *ft_calloc(size_t nmemb, size_t size);
 void    ft_free(void *ptr);
+void    *tiny_small_allocation(size_t allocated_size, t_type type);
+void    *large_allocation(size_t allocated_size);
+size_t  realloc_available_size(t_metadata *meta);
+
+// metadata.c
+void    mark_block(void *ptr, size_t allocated_size);
+void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc);
+
+// defragmentation.c
 bool    is_block_free(void *block);
 void    defragment(void *first_block, void *second_block);
-void    *ft_malloc(size_t size);
-void    mark_block(void *ptr, size_t allocated_size);
-void    *tiny_allocation(size_t allocated_size);
-void    *small_allocation(size_t allocated_size);
-void    *large_allocation(size_t allocated_size);
-void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc);
 
 // best_fit.c
 void  *get_block(size_t size, t_type type);
 void  *best_fit(size_t size, t_type type);
+
+// arenas.c
 void  *create_arena(t_type type, size_t size);
 size_t  get_arena_size_with_block(size_t blk_size);
 void    add_arena(void *addr, t_type type, size_t size);
 t_arena *get_last_arena();
+char    *get_arena_text_type(t_arena *arena);
 
 // display.c
 void    show_alloc_mem();
 void    show_alloc_mem_ex();
-void    print_metadata(void *ptr);
-char    *get_arena_text_type(t_arena *arena);
-void    print_arena_info(t_arena *arena);
-size_t  print_allocs_in_arena(void *arena);
+void    show_metadata(void *ptr);
+void    show_arena_info(t_arena *arena);
+size_t  show_allocs_in_arena(void *arena);
 
 #endif

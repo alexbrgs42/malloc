@@ -27,6 +27,8 @@ int main() {
     (void)g;
 
     show_alloc_mem();
+    printf("\n\n");
+
     ft_free(b);
 
     ft_free(c);
@@ -36,16 +38,19 @@ int main() {
     ft_free(c);
 
     show_alloc_mem();
+    printf("\n\n");
 
     ft_free(d);
     ft_free(e);
 
     show_alloc_mem();
+    printf("\n\n");
 
     ft_free(f);
     ft_free(g);
 
     show_alloc_mem();
+    printf("\n\n");
 
     a = ft_malloc(42);
     b = ft_malloc(84);
