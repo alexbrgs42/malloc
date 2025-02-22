@@ -1,7 +1,48 @@
 #include "../include/malloc.h"
 
+void    show_alloc_mem() {
+    size_t      total = 0;
+    t_arena     *current_arena;
+
+    pthread_mutex_lock(&memory);
+    if (arenas == NULL || arenas->arenas == NULL) {
+        printf("No allocations.\n");
+        pthread_mutex_unlock(&memory);
+        return ;
+    }
+    current_arena = arenas->arenas;
+    while (current_arena != NULL) {
+        print_arena_info(current_arena);
+        total += print_allocs_in_arena(current_arena->addr);
+        current_arena = current_arena->next;
+    }
+    printf("Total : %ld bytes\n", total);
+    pthread_mutex_unlock(&memory);
+}
+
+void    show_alloc_mem_ex() {
+    pthread_mutex_lock(&memory);
+    printf("hello\n");
+    pthread_mutex_unlock(&memory);
+    // BONUS - history of allocations, or an hexa dump of the allocated zones
+}
+
+void    print_metadata(void *ptr) {
+    t_metadata  *meta;
+    char        *format;
+
+    if (ptr == NULL)
+        return ;
+    meta = (t_metadata *)(ptr - sizeof(t_metadata));
+    format = "METADATA\n--------\naddress: 0x%lX\nsize = %ld\nprev = %s%lX\nnext = %s%lX\nis allocated = %s\n\n";
+    while (meta != NULL) {
+        printf(format, (uintptr_t)meta, meta->size, (meta->prev == NULL ? "": "0x"), (uintptr_t)meta->prev, (meta->next == NULL ? "": "0x"), (uintptr_t)meta->next, (meta->is_malloc ? "true" : "false"));
+        meta = (t_metadata *)meta->next;
+    }
+}
+
 char    *get_arena_text_type(t_arena *arena) {
-    t_type t = arena->type;
+    t_type  t = arena->type;
 
     switch (t) {
         case TINY:
@@ -13,38 +54,29 @@ char    *get_arena_text_type(t_arena *arena) {
     }
 }
 
-void    show_alloc_mem() {
-    t_arena     *current_arena;
-    t_metadata  *meta;
-    size_t      total = 0;
+void    print_arena_info(t_arena *arena) {
+    void    *start = arena->addr;
+    // void    *end = start + arena->size;
 
-    pthread_mutex_lock(&memory);
-    if (arenas == NULL || arenas->arenas == NULL) {
-        printf("No allocations.\n");
-        return ;
-    }
-    current_arena = arenas->arenas;
-    while (current_arena != NULL) {
-        printf("%s : %p - %p\n", get_arena_text_type(current_arena), current_arena->addr, current_arena->addr + current_arena->size);
-        meta = (t_metadata *)(current_arena->addr);
-        while (meta != NULL) {
-            if ((meta->size & 1) == 1) {
-                printf("%p - %p : %ld bytes\n", meta, (meta->next != NULL ? meta->next - 1 : current_arena->addr + current_arena->size), ABSOLUT_SIZE(meta->size));
-                total += ABSOLUT_SIZE(meta->size); // should have real value
-            }
-            meta = (t_metadata *)(meta->next);
-        }
-        current_arena = current_arena->next;
-    }
-    printf("Total : %ld bytes\n", total);
-    pthread_mutex_unlock(&memory);
-    // MANDATORY - VISUAL STATE OF ALLOCATIONS IN EACH AREA BY INCREASING ADDRESSES
+    printf("%s : 0x%lX\n", get_arena_text_type(arena), (uintptr_t)start);
 }
 
-void    show_alloc_mem_ex() {
+size_t  print_allocs_in_arena(void *arena) {
+    t_metadata  *meta = (t_metadata *)arena;
+    size_t      total = 0;
+    size_t      size = 0;
+    void        *ptr = NULL;
+    void        *end = NULL;
 
-    pthread_mutex_lock(&memory);
-    printf("hello\n");
-    pthread_mutex_unlock(&memory);
-    // BONUS - history of allocations, or an hexa dump of the allocated zones
+    while (meta != NULL) {
+        if (meta->is_malloc == true) {
+            size = meta->size - sizeof(t_metadata);
+            ptr = (void *)meta + sizeof(t_metadata);
+            end = (void *)meta + meta->size;
+            printf("0x%lX - 0x%lX : %ld bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
+            total += size;
+        }
+        meta = (t_metadata *)(meta->next);
+    }
+    return total;
 }
