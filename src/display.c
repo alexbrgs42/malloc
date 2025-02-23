@@ -60,8 +60,14 @@ size_t  show_allocs_in_arena(void *arena) {
             size = meta->size - sizeof(t_metadata);
             ptr = (void *)meta + sizeof(t_metadata);
             end = (void *)meta + meta->size;
-            printf("0x%lX - 0x%lX : %ld bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
+            printf("malloc - 0x%lX - 0x%lX : %ld bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
             total += size;
+        }
+        else {
+            size = meta->size;
+            ptr = (void *)meta;
+            end = (void *)meta + meta->size;
+            printf("free   - 0x%lX - 0x%lX : %ld bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
         }
         meta = (t_metadata *)(meta->next);
     }

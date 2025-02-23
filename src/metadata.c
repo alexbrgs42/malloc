@@ -14,5 +14,4 @@ void    mark_block(void *ptr, size_t size) {
     if (((t_metadata *)ptr)->next != NULL)
         set_metadata(((t_metadata *)ptr)->next, ((t_metadata *)(((t_metadata *)ptr)->next))->size, ptr + size, ((t_metadata *)(((t_metadata *)ptr)->next))->next, ((t_metadata *)(((t_metadata *)ptr)->next))->is_malloc);
     set_metadata(ptr, size, ((t_metadata *)ptr)->prev, (((t_metadata *)ptr)->size != size ? ptr + size : ((t_metadata *)ptr)->next), true);
-    ((t_metadata *)ptr)->size = ((t_metadata *)ptr)->size;
 }

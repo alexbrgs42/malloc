@@ -20,10 +20,6 @@
 # define ALIGNMENT 8
 # define ALIGN(size) ((size + (ALIGNMENT-1)) & ~(ALIGNMENT-1))
 
-# define FREE_BLOCK(size) (size & ~1UL)
-# define ABSOLUT_SIZE(size) (size & ~1UL)
-# define USED_BLOCK(size) (size | 1)
-
 # define N 4 * sysconf(_SC_PAGESIZE)
 # define M 96 * sysconf(_SC_PAGESIZE)
 
@@ -91,6 +87,7 @@ void    *ft_realloc(void *ptr, size_t size);
 void    *ft_malloc(size_t size);
 void    *ft_calloc(size_t nmemb, size_t size);
 void    ft_free(void *ptr);
+void    fill_reallocated_block(void *new_ptr, void *ptr);
 void    *tiny_small_allocation(size_t allocated_size, t_type type);
 void    *large_allocation(size_t allocated_size);
 size_t  realloc_available_size(t_metadata *meta);

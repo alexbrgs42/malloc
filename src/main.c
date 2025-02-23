@@ -3,20 +3,25 @@
 t_allocs        *arenas = NULL;
 pthread_mutex_t memory = PTHREAD_MUTEX_INITIALIZER;
 
-// realloc
-// calloc
+// order arenas by increasing order
+// calloc - should decomment overflow protection
+// print last free zone that is less than 32 bytes and change next = NULL if realloc again (increase or decrease) or freed
 // what size should I mmap for arenas global var ?
 // Remove ft_
 // NOT RETURN BEFORE MUTEX UNLOCK
 
 int main() {
-    void *a = ft_malloc(42);
-    void *b = ft_malloc(84);
-    void *c = ft_malloc(70);
-    void *d = ft_malloc(100);
-    void *e = ft_malloc(110);
-    void *f = ft_malloc(3725);
-    void *g = ft_malloc(48847);
+
+    void *a = ft_calloc(42, 10);
+    void *b = ft_calloc(84, 1);
+    void *c = ft_calloc(70, 1);
+    void *d = ft_calloc(100, 1);
+    void *e = ft_calloc(110, 1);
+    void *f = ft_calloc(125, 1);
+    show_alloc_mem();
+    printf("\n\n");
+    void *g = ft_realloc(f, 15786);
+    /*e = ft_malloc(110);*/
 
     (void)a;
     (void)b;
@@ -29,6 +34,7 @@ int main() {
     show_alloc_mem();
     printf("\n\n");
 
+    g = ft_realloc(f, 100);
     ft_free(b);
 
     ft_free(c);

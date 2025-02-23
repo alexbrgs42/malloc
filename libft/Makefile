@@ -9,8 +9,8 @@ MEM_SRC :=	$(MEM_PATH)/ft_memset.c \
 			$(MEM_PATH)/ft_memcpy.c \
 			$(MEM_PATH)/ft_memmove.c \
 			$(MEM_PATH)/ft_memchr.c \
-			$(MEM_PATH)/ft_memcmp.c \
-			$(MEM_PATH)/ft_calloc.c
+			$(MEM_PATH)/ft_memcmp.c
+# 			$(MEM_PATH)/ft_calloc.c
 
 STR_SRC	:=	$(STR_PATH)/ft_isalpha.c \
 			$(STR_PATH)/ft_isdigit.c \

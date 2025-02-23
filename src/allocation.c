@@ -6,7 +6,6 @@ void    *ft_malloc(size_t size) {
 
     if (size <= 0)
         return NULL;
-
     pthread_mutex_lock(&memory);
     // TINY
     if (allocated_size <= (size_t)(N / 100))
@@ -55,16 +54,47 @@ void    *ft_realloc(void *ptr, size_t size) {
         ft_free(ptr);
         return new_ptr;
     }
-    if (meta->size - sizeof(t_metadata) < size) {
-        // increase size
+    size_t  allocated_size = size + sizeof(t_metadata);
+    if (meta->size < allocated_size) {
+        // INCREASE
+        if (((t_metadata *)meta->next)->next == NULL && meta->next + ((t_metadata *)meta->next)->size < (void *)meta + allocated_size + sizeof(t_metadata)) {
+            set_metadata((void *)meta, allocated_size, meta->prev, NULL, true);
+        }
+        else {
+            set_metadata((void *)meta + allocated_size, ((t_metadata *)meta->next)->size - (allocated_size - meta->size), (void *)meta, ((t_metadata *)meta->next)->next, false);
+            set_metadata((void *)meta, allocated_size, meta->prev, (void *)meta + allocated_size, true);
+            if (((t_metadata *)meta->next)->next != NULL)
+                set_metadata(((t_metadata *)meta->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->size, meta->next, ((t_metadata *)((t_metadata *)meta->next)->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->is_malloc);
+        }
     }
     else {
-        // mark_block((void *)meta, size); // should adapt is_malloc
+        // DECREASE
+        if (meta->next != NULL) {
+            set_metadata((void *)meta + allocated_size, ((t_metadata *)meta->next)->size - (allocated_size - meta->size), (void *)meta, ((t_metadata *)meta->next)->next, true);
+            set_metadata((void *)meta, allocated_size, meta->prev, (void *)meta + allocated_size, true);
+            if (((t_metadata *)meta->next)->next != NULL)
+                set_metadata(((t_metadata *)meta->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->size, meta->next, ((t_metadata *)((t_metadata *)meta->next)->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->is_malloc);
+        }
+        else {
+            set_metadata((void *)meta + allocated_size, meta->size - allocated_size, (void *)meta, NULL, false);
+            set_metadata((void *)meta, allocated_size, meta->prev, (void *)meta + allocated_size, true);
+        }
         pthread_mutex_unlock(&memory);
-        ft_free(meta->next);
+        ft_free(meta->next + sizeof(t_metadata));
         return ptr;
     }
     pthread_mutex_unlock(&memory);
+    return ptr;
+}
+
+void    fill_reallocated_block(void *new_ptr, void *ptr) {
+    t_metadata  *meta = (t_metadata *)(ptr - sizeof(t_metadata));
+    t_metadata  *new_meta = (t_metadata *)(new_ptr - sizeof(t_metadata));
+    size_t      size = meta->size - sizeof(t_metadata);
+    size_t      new_size = new_meta->size - sizeof(t_metadata);
+
+    for (size_t i = 0; i < size && i < new_size; i++)
+        ((char *)new_ptr)[i] = ((char *)ptr)[i];
 }
 
 size_t  realloc_available_size(t_metadata *meta) {
@@ -75,7 +105,47 @@ size_t  realloc_available_size(t_metadata *meta) {
     return size + ((t_metadata *)meta->next)->size;
 }
 
-void    *ft_calloc(size_t nmemb, size_t size); // mutex
+void    *ft_calloc(size_t nmemb, size_t size) {
+    void    *ptr;
+    pthread_mutex_lock(&memory);
+    if (nmemb * size == 0) {
+        pthread_mutex_unlock(&memory);
+        return NULL;
+    }
+    if (nmemb * size < 0 || nmemb * size < nmemb || nmemb * size < size) {
+        pthread_mutex_unlock(&memory);
+        return NULL;
+    }
+    pthread_mutex_unlock(&memory);
+    ptr = ft_malloc(nmemb * size);
+    if (ptr == NULL)
+        return NULL;
+    pthread_mutex_lock(&memory);
+    for (size_t i = 0; i < nmemb * size; i++)
+        ((char *)ptr)[i] = 0;
+    pthread_mutex_unlock(&memory);
+    return ptr;
+}
+
+bool    is_block_allocated(void *meta_addr) {
+    t_arena    *curr_arena;
+    t_metadata  *curr_meta;
+
+    if (arenas == NULL || arenas->arenas == NULL)
+        return false;
+    curr_arena = arenas->arenas;
+    while (curr_arena != NULL && (curr_arena->addr > meta_addr || curr_arena->addr + curr_arena->size <= meta_addr))
+        curr_arena = curr_arena->next;
+    if (curr_arena == NULL)
+        return false;
+    curr_meta = (t_metadata *)curr_arena;
+    while (curr_meta != NULL) {
+        if ((void *)curr_meta == meta_addr)
+            return (curr_meta->is_malloc);
+        curr_meta = (t_metadata *)(curr_meta->next);
+    }
+    return false;
+}
 
 void    ft_free(void *ptr) {
     if (ptr == NULL)
@@ -84,8 +154,8 @@ void    ft_free(void *ptr) {
     pthread_mutex_lock(&memory);
     t_metadata  *free_meta = (t_metadata *)(ptr - sizeof(t_metadata));
     // CHANGE ALLOCATED STATUS
-    if (free_meta->is_malloc == false) {
-        printf("Error: Block already freed.\n");
+    if (is_block_allocated((void *)free_meta) == false) {
+        printf("Error: Block cannot be freed.\n");
         pthread_mutex_unlock(&memory);
         return ;
     }
