@@ -83,19 +83,19 @@ extern pthread_mutex_t  memory;
 // #################################################################
 
 // malloc.c
-void    *ft_malloc(size_t size);
+void    *malloc(size_t size);
 void    *tiny_small_allocation(size_t allocated_size, t_type type);
 void    *large_allocation(size_t allocated_size);
 
 // free.c
-void    ft_free(void *ptr);
+void    free(void *ptr);
 void    defragment(void *first_block, void *second_block);
 bool    is_block_free(void *block);
 void    free_arena_if_empty(t_metadata *free_meta);
 bool    is_block_freeable(void *meta_addr);
 
 // realloc.c
-void    *ft_realloc(void *ptr, size_t size);
+void    *realloc(void *ptr, size_t size);
 void    *increase_realloc_at_different_address(void *ptr, size_t size);
 void    fill_reallocated_block(void *new_ptr, void *ptr);
 size_t  available_size_for_realloc(t_metadata *meta);
@@ -103,7 +103,7 @@ void    increase_realloc_at_same_address(t_metadata *meta, size_t size);
 void    decrease_realloc(t_metadata *meta, size_t size);
 
 // calloc.c
-void    *ft_calloc(size_t nmemb, size_t size);
+void    *calloc(size_t nmemb, size_t size);
 
 // metadata.c
 void    mark_block(void *ptr, size_t allocated_size);

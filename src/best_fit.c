@@ -27,9 +27,11 @@ void  *best_fit(size_t size, t_type type) {
     best = NULL;
     curr_arena = allocated_pages->arenas;
     while (curr_arena != NULL) {
+        write(1, "b", 1);
         if (curr_arena->type == type) {
             head = curr_arena->addr;
             while (head != NULL) {
+                write(1, "c", 1);
                 if ((((t_metadata *)head)->is_malloc) == false && ((t_metadata *)head)->size >= size && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
                     best = head;
                 }

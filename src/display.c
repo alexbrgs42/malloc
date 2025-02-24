@@ -4,27 +4,28 @@ void    show_alloc_mem() {
     size_t      total;
     t_arena     *current_arena;
 
-    pthread_mutex_lock(&memory);
+    // pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         printf("No allocations.\n");
-        pthread_mutex_unlock(&memory);
+        // pthread_mutex_unlock(&memory);
         return ;
     }
     total = 0;
     current_arena = allocated_pages->arenas;
     while (current_arena != NULL) {
+        write(1, "e", 1);
         show_arena_info(current_arena);
         total += show_allocs_in_arena(current_arena->addr);
         current_arena = current_arena->next;
     }
     printf("Total : %ld bytes\n", total);
-    pthread_mutex_unlock(&memory);
+    // pthread_mutex_unlock(&memory);
 }
 
 void    show_alloc_mem_ex() {
-    pthread_mutex_lock(&memory);
+    // pthread_mutex_lock(&memory);
     printf("hello\n");
-    pthread_mutex_unlock(&memory);
+    // pthread_mutex_unlock(&memory);
     // BONUS - history of allocations, or an hexa dump of the allocated zones
 }
 
@@ -37,6 +38,7 @@ void    show_metadata(void *ptr) {
     meta = (t_metadata *)(ptr - sizeof(t_metadata));
     format = "METADATA\n--------\naddress: 0x%lX\nsize = %ld\nprev = %s%lX\nnext = %s%lX\nis allocated = %s\n\n";
     while (meta != NULL) {
+        write(1, "d", 1);
         printf(format, (uintptr_t)meta, meta->size, (meta->prev == NULL ? "": "0x"), (uintptr_t)meta->prev, (meta->next == NULL ? "": "0x"), (uintptr_t)meta->next, (meta->is_malloc ? "true" : "false"));
         meta = (t_metadata *)meta->next;
     }
@@ -59,6 +61,7 @@ size_t  show_allocs_in_arena(void *arena) {
     total = 0;
     meta = (t_metadata *)arena;
     while (meta != NULL) {
+        write(1, "f", 1);
         if (meta->is_malloc == true) {
             size = meta->size - sizeof(t_metadata);
             ptr = (void *)meta + sizeof(t_metadata);

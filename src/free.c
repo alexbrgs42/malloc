@@ -1,15 +1,15 @@
 # include "../include/malloc.h"
 
-void    ft_free(void *ptr) {
+void    free(void *ptr) {
     t_metadata  *free_meta;
 
     if (ptr == NULL)
         return ;
-    pthread_mutex_lock(&memory);
+    // pthread_mutex_lock(&memory);
     free_meta = (t_metadata *)(ptr - sizeof(t_metadata));
     if (is_block_freeable((void *)free_meta) == false) {
-        printf("Error: Block cannot be freed.\n");
-        pthread_mutex_unlock(&memory);
+        printf("Error: block cannot be freed.\n");
+        // pthread_mutex_unlock(&memory);
         return ;
     }
     free_meta->is_malloc = false;
@@ -20,7 +20,7 @@ void    ft_free(void *ptr) {
         defragment(free_meta, free_meta->next);
     }
     free_arena_if_empty(free_meta);
-    pthread_mutex_unlock(&memory);
+    // pthread_mutex_unlock(&memory);
 }
 
 void    defragment(void *first_block, void *second_block) {
@@ -47,8 +47,10 @@ void    free_arena_if_empty(t_metadata *free_meta) {
             allocated_pages->arenas = allocated_pages->arenas->next;
         }
         else {
-            while (curr_arena->next->addr != free_meta)
+            while (curr_arena->next->addr != free_meta) {
+                write(1, "f", 1);
                 curr_arena = curr_arena->next;
+            }
             curr_arena->next = curr_arena->next->next;
         }
         munmap(free_meta, free_meta->size);
@@ -66,12 +68,15 @@ bool    is_block_freeable(void *meta_addr) {
     if (allocated_pages == NULL || allocated_pages->arenas == NULL)
         return false;
     curr_arena = allocated_pages->arenas;
-    while (curr_arena != NULL && (curr_arena->addr > meta_addr || curr_arena->addr + curr_arena->size <= meta_addr))
+    while (curr_arena != NULL && (curr_arena->addr > meta_addr || curr_arena->addr + curr_arena->size <= meta_addr)) {
+        write(1, "go", 2);
         curr_arena = curr_arena->next;
+    }
     if (curr_arena == NULL)
         return false;
     curr_meta = (t_metadata *)curr_arena;
     while (curr_meta != NULL) {
+        write(1, "h", 1);
         if ((void *)curr_meta == meta_addr)
             return (curr_meta->is_malloc);
         curr_meta = (t_metadata *)(curr_meta->next);

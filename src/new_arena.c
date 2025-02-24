@@ -5,8 +5,10 @@ void  *create_arena(t_type type, size_t size) {
     int     ret;
     
     addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-    if (addr == MAP_FAILED)
+    if (addr == MAP_FAILED) {
+        printf("Error: mmap syscall failed.\n");
         return NULL;
+    }
     ret = add_arena_to_allocated_pages(addr, type, size);
     if (ret == EXIT_FAILURE)
         return NULL;
@@ -26,9 +28,8 @@ int add_arena_to_allocated_pages(void *addr, t_type type, size_t size) {
         new_arena = (t_arena *)((void *)last_arena + sizeof(t_arena));
         if ((void *)new_arena + sizeof(t_arena) > (void *)allocated_pages + allocated_pages->mmap_size) {
             ret = resize_allocated_pages();
-            if (ret == EXIT_FAILURE) {
+            if (ret == EXIT_FAILURE)
                 return EXIT_FAILURE;
-            }
             last_arena = get_last_arena();
             new_arena = (t_arena *)((void *)last_arena + sizeof(t_arena));
         }
@@ -40,7 +41,8 @@ int add_arena_to_allocated_pages(void *addr, t_type type, size_t size) {
     if (allocated_pages->arenas == NULL)
         allocated_pages->arenas = new_arena;
     else {
-        insert_arena_in_list(new_arena);
+        last_arena->next = new_arena;
+        // insert_arena_in_list(new_arena);
     }
     return EXIT_SUCCESS;
 }
@@ -54,8 +56,10 @@ void    insert_arena_in_list(t_arena *new_arena) {
         allocated_pages->arenas = new_arena;
         return ;
     }
-    while (prev_arena->next != NULL && prev_arena->next->addr < new_arena->addr)
+    while (prev_arena->next != NULL && prev_arena->next->addr < new_arena->addr) {
+        write(1, "i", 1);
         prev_arena = prev_arena->next;
+    }
     if (prev_arena->addr > new_arena->addr) {
         prev_arena->next = new_arena;
     }
@@ -97,6 +101,7 @@ t_arena *get_last_arena() {
 
     last_arena = allocated_pages->arenas;
     while (last_arena->next != NULL) {
+        write(1, "j", 1);
         last_arena = last_arena->next;
     }
     return last_arena;

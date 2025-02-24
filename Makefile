@@ -1,16 +1,21 @@
 SRC_PATH	:=	src
 OBJ_PATH	:=	obj
 
-SRC_FILES	:=	main.c malloc.c free.c realloc.c calloc.c best_fit.c display.c allocated_pages.c metadata.c new_arena.c
+SRC_FILES	:=	malloc.c free.c realloc.c calloc.c best_fit.c display.c allocated_pages.c metadata.c new_arena.c
 
 SRC	:=	$(addprefix $(SRC_PATH)/, $(SRC_FILES))
 OBJ	:=	$(patsubst $(SRC_PATH)/%, $(OBJ_PATH)/%, $(SRC:.c=.o))
 
-NAME	:=	executable
-CFLAGS	:=	-Wall -Wextra -Werror -g3
-INCL	:=	-Iinclude
-LIB		:=	-Llibft -lft
-LIBFT	:=	libft/libft.a
+ifeq ($(HOSTTYPE),)
+	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
+endif
+
+SYM_LINK_NAME	:=	libft_malloc_$(HOSTTYPE).so
+NAME			:=	libft_malloc.so
+CFLAGS			:=	-Wall -Wextra -Werror -g3
+INCL			:=	-Iinclude
+LIB				:=	-Llibft -lft
+LIBFT			:=	libft/libft.a
 
 #################################################################
 #                                                               #
@@ -19,10 +24,11 @@ LIBFT	:=	libft/libft.a
 #################################################################
 
 $(OBJ_PATH)/%.o:	$(SRC_PATH)/%.c
-	gcc $(CFLAGS) $(INCL) -c -o $@ $< $(LIB)
+	gcc -fPIC -shared $(CFLAGS) $(INCL) -c -o $@ $< $(LIB)
 
 $(NAME):	$(LIBFT) $(OBJ_PATH) $(OBJ)
-	gcc $(CFLAGS) $(INCL) $(OBJ) -o $(NAME) $(LIB)
+	gcc -fPIC -shared $(CFLAGS) $(OBJ) -o $(NAME) $(LIB)
+	ln -sf $(NAME) $(SYM_LINK_NAME)
 
 $(OBJ_PATH):
 	mkdir -p $(OBJ_PATH)
@@ -43,7 +49,7 @@ clean:
 	make clean -C libft
 
 fclean:	clean
-	rm -rf $(NAME)
+	rm -rf $(NAME) $(SYM_LINK_NAME)
 	make fclean -C libft
 
 re: fclean all
