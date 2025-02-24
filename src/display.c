@@ -1,16 +1,17 @@
 #include "../include/malloc.h"
 
 void    show_alloc_mem() {
-    size_t      total = 0;
+    size_t      total;
     t_arena     *current_arena;
 
     pthread_mutex_lock(&memory);
-    if (arenas == NULL || arenas->arenas == NULL) {
+    if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         printf("No allocations.\n");
         pthread_mutex_unlock(&memory);
         return ;
     }
-    current_arena = arenas->arenas;
+    total = 0;
+    current_arena = allocated_pages->arenas;
     while (current_arena != NULL) {
         show_arena_info(current_arena);
         total += show_allocs_in_arena(current_arena->addr);
@@ -42,19 +43,21 @@ void    show_metadata(void *ptr) {
 }
 
 void    show_arena_info(t_arena *arena) {
-    void    *start = arena->addr;
-    // void    *end = start + arena->size;
+    void    *start;
 
+    start = arena->addr;
     printf("%s : 0x%lX\n", get_arena_text_type(arena), (uintptr_t)start);
 }
 
 size_t  show_allocs_in_arena(void *arena) {
-    t_metadata  *meta = (t_metadata *)arena;
-    size_t      total = 0;
-    size_t      size = 0;
-    void        *ptr = NULL;
-    void        *end = NULL;
+    void        *ptr;
+    void        *end;
+    size_t      total;
+    size_t      size;
+    t_metadata  *meta;
 
+    total = 0;
+    meta = (t_metadata *)arena;
     while (meta != NULL) {
         if (meta->is_malloc == true) {
             size = meta->size - sizeof(t_metadata);

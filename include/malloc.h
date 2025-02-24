@@ -73,7 +73,7 @@ struct s_metadata {
 // #                                                               #
 // #################################################################
 
-extern t_allocs         *arenas;
+extern t_allocs         *allocated_pages;
 extern pthread_mutex_t  memory;
 
 // #################################################################
@@ -82,34 +82,49 @@ extern pthread_mutex_t  memory;
 // #                                                               #
 // #################################################################
 
-// allocation.c
-void    *ft_realloc(void *ptr, size_t size);
+// malloc.c
 void    *ft_malloc(size_t size);
-void    *ft_calloc(size_t nmemb, size_t size);
-void    ft_free(void *ptr);
-void    fill_reallocated_block(void *new_ptr, void *ptr);
 void    *tiny_small_allocation(size_t allocated_size, t_type type);
 void    *large_allocation(size_t allocated_size);
-size_t  realloc_available_size(t_metadata *meta);
+
+// free.c
+void    ft_free(void *ptr);
+void    defragment(void *first_block, void *second_block);
+bool    is_block_free(void *block);
+void    free_arena_if_empty(t_metadata *free_meta);
+bool    is_block_freeable(void *meta_addr);
+
+// realloc.c
+void    *ft_realloc(void *ptr, size_t size);
+void    *increase_realloc_at_different_address(void *ptr, size_t size);
+void    fill_reallocated_block(void *new_ptr, void *ptr);
+size_t  available_size_for_realloc(t_metadata *meta);
+void    increase_realloc_at_same_address(t_metadata *meta, size_t size);
+void    decrease_realloc(t_metadata *meta, size_t size);
+
+// calloc.c
+void    *ft_calloc(size_t nmemb, size_t size);
 
 // metadata.c
 void    mark_block(void *ptr, size_t allocated_size);
 void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc);
 
-// defragmentation.c
-bool    is_block_free(void *block);
-void    defragment(void *first_block, void *second_block);
-
 // best_fit.c
 void  *get_block(size_t size, t_type type);
 void  *best_fit(size_t size, t_type type);
 
-// arenas.c
-void  *create_arena(t_type type, size_t size);
-size_t  get_arena_size_with_block(size_t blk_size);
-void    add_arena(void *addr, t_type type, size_t size);
-t_arena *get_last_arena();
+// allocated_pages.c
+void    create_allocated_pages(size_t mmap_size);
+int     resize_allocated_pages();
+void    copy_allocated_pages_content(t_allocs *old_allocated_pages);
+
+// new_arena.c
+void    *create_arena(t_type type, size_t size);
+int     add_arena_to_allocated_pages(void *addr, t_type type, size_t size);
+void    insert_arena_in_list(t_arena *new_arena);
 char    *get_arena_text_type(t_arena *arena);
+size_t  get_arena_size_with_block(size_t blk_size);
+t_arena *get_last_arena();
 
 // display.c
 void    show_alloc_mem();
