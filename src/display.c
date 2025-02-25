@@ -4,10 +4,10 @@ void    show_alloc_mem() {
     size_t      total;
     t_arena     *current_arena;
 
-    pthread_mutex_lock(&memory);
+    // pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         ft_printf("No allocations.\n");
-        pthread_mutex_unlock(&memory);
+        // pthread_mutex_unlock(&memory);
         return ;
     }
     total = 0;
@@ -18,17 +18,17 @@ void    show_alloc_mem() {
         current_arena = current_arena->next;
     }
     ft_printf("Total : %d bytes\n", total);
-    pthread_mutex_unlock(&memory);
+    // pthread_mutex_unlock(&memory);
 }
 
 void    show_alloc_mem_ex() {
     t_arena     *current_arena;
     t_metadata  *current_metadata;
 
-    pthread_mutex_lock(&memory);
+    // pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         ft_printf("No allocations.\n");
-        pthread_mutex_unlock(&memory);
+        // pthread_mutex_unlock(&memory);
         return ;
     }
     current_arena = allocated_pages->arenas;
@@ -43,7 +43,7 @@ void    show_alloc_mem_ex() {
         current_arena = current_arena->next;
         ft_printf("\n");
     }
-    pthread_mutex_unlock(&memory);
+    // pthread_mutex_unlock(&memory);
 }
 
 void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {

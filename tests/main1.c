@@ -17,16 +17,17 @@
 
 int main() {
 
-    char *a = malloc(10);
-    char *b = malloc(102);
-    b = malloc(1202);
+    ft_printf("%p\n", 0x7ffff7514860 + sizeof(t_metadata));
+    // char *a = malloc(10);
+    // char *b = malloc(102);
+    // b = malloc(1202);
 
-    ft_memset(a, '\n', 10);
+    // ft_memset(a, '\n', 10);
 
-    (void)a;
-    (void)b;
+    // (void)a;
+    // (void)b;
 
-    show_alloc_mem_ex();
+    // show_alloc_mem_ex();
 
     return 0;
 }

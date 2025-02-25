@@ -22,6 +22,7 @@ void    *malloc(size_t size) {
         ptr = tiny_small_allocation(allocated_size, SMALL);
     else if (allocated_size > (size_t)(M / 100))
         ptr = large_allocation(allocated_size);
+    ft_printf("malloc %p size %d\n", ptr, allocated_size);
     pthread_mutex_unlock(&memory);
     return ptr;
 }
@@ -46,7 +47,7 @@ void    *large_allocation(size_t size) {
         return NULL;
     }
     if (allocated_pages == NULL) {
-        create_allocated_pages(sizeof(t_allocs *) + 100 * sizeof(t_arena));
+        create_allocated_pages(sizeof(t_allocs *) + 300 * sizeof(t_arena));
         if (allocated_pages == NULL)
             return NULL;
     }

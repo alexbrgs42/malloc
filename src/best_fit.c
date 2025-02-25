@@ -5,7 +5,7 @@ void  *get_block(size_t size, t_type type) {
 
     best = NULL;
     if (allocated_pages == NULL) {
-        create_allocated_pages(sizeof(t_allocs *) + 100 * sizeof(t_arena));
+        create_allocated_pages(sizeof(t_allocs *) + 300 * sizeof(t_arena));
         if (allocated_pages == NULL)
             return NULL;
     }

@@ -21,6 +21,7 @@ void    free(void *ptr) {
         defragment((void *)free_meta, free_meta->next);
     }
     free_arena_if_empty(free_meta);
+    ft_printf("free %p\n", ptr);
     pthread_mutex_unlock(&memory);
 }
 
@@ -30,9 +31,11 @@ void    defragment(void *first_block, void *second_block) {
 
     first_meta = (t_metadata *)first_block;
     second_meta = (t_metadata *)second_block;
+    ft_printf("Defragment %p with %p\n", first_block, second_block);
     set_metadata(first_block, first_meta->size + second_meta->size, first_meta->prev, second_meta->next, false);
-    if (second_meta->next != NULL)
-        set_metadata(second_meta->next, ((t_metadata *)second_meta->next)->size, first_block, ((t_metadata *)second_meta->next)->next, true);
+    if (second_meta->next != NULL) {
+        set_metadata(second_meta->next, ((t_metadata *)second_meta->next)->size, first_block, ((t_metadata *)second_meta->next)->next, ((t_metadata *)second_meta->next)->is_malloc);
+    }
 }
 
 bool    is_block_free(void *block) {

@@ -5,8 +5,8 @@ void    *realloc(void *ptr, size_t size) {
     size_t      available_size;
     t_metadata  *meta;
 
-
     pthread_mutex_lock(&memory);
+    ft_printf("realloc %p size %d\n", ptr, size);
     if (ptr == NULL) {
         pthread_mutex_unlock(&memory);
         return malloc(size);
@@ -22,14 +22,15 @@ void    *realloc(void *ptr, size_t size) {
         return ptr;
     }
     available_size = available_size_for_realloc(meta);
-    if (available_size < size) {
-        return increase_realloc_at_different_address(ptr, size);
-    }
-    allocated_size = size + sizeof(t_metadata);
-    if (meta->size < allocated_size)
+    allocated_size = ALIGN(size + sizeof(t_metadata));
+    if (available_size < size)
+        return increase_realloc_at_different_address(ptr, allocated_size);
+    if (meta->size < allocated_size) {
         increase_realloc_at_same_address(meta, allocated_size);
-    else
+    }
+    else {
         decrease_realloc(meta, allocated_size);
+    }
     pthread_mutex_unlock(&memory);
     return ptr;
 }
@@ -73,11 +74,12 @@ void    fill_reallocated_block(void *new_ptr, void *ptr) {
 }
 
 void    increase_realloc_at_same_address(t_metadata *meta, size_t size) {
+    ft_printf("increase %p size %d\n", (void *)meta + sizeof(t_metadata), size);
     if (((t_metadata *)meta->next)->next == NULL && meta->next + ((t_metadata *)meta->next)->size < (void *)meta + size + sizeof(t_metadata)) {
         set_metadata(meta, size, meta->prev, NULL, true);
     }
     else {
-        set_metadata((void *)meta + size, ((t_metadata *)meta->next)->size - (size - meta->size),meta, ((t_metadata *)meta->next)->next, false);
+        set_metadata((void *)meta + size, ((t_metadata *)meta->next)->size - (size - meta->size), meta, ((t_metadata *)meta->next)->next, false);
         set_metadata(meta, size, meta->prev, (void *)meta + size, true);
         if (((t_metadata *)meta->next)->next != NULL)
             set_metadata(((t_metadata *)meta->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->size, meta->next, ((t_metadata *)((t_metadata *)meta->next)->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->is_malloc);
@@ -85,6 +87,7 @@ void    increase_realloc_at_same_address(t_metadata *meta, size_t size) {
 }
 
 void    decrease_realloc(t_metadata *meta, size_t size) {
+    ft_printf("decrease %p size %d\n", (void *)meta + sizeof(t_metadata), size);
     if (meta->next != NULL) {
         set_metadata((void *)meta + size, ((t_metadata *)meta->next)->size - (size - meta->size), meta, ((t_metadata *)meta->next)->next, true);
         set_metadata(meta, size, meta->prev, (void *)meta + size, true);
