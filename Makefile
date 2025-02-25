@@ -10,8 +10,8 @@ ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
 
-SYM_LINK_NAME	:=	libft_malloc_$(HOSTTYPE).so
-NAME			:=	libft_malloc.so
+NAME			:=	libft_malloc_$(HOSTTYPE).so
+SYM_LINK_NAME	:=	libft_malloc.so
 CFLAGS			:=	-Wall -Wextra -Werror -g3
 INCL			:=	-Iinclude
 LIB				:=	-Llibft -lft -Lft_printf -lftprintf
