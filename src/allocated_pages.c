@@ -4,7 +4,7 @@ void    create_allocated_pages(size_t mmap_size) {
     allocated_pages = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (allocated_pages == MAP_FAILED) {
         allocated_pages = NULL;
-        printf("Error: mmap syscall failed.\n");
+        ft_printf("Error: mmap syscall failed.\n");
         return ;
     }
     allocated_pages->arenas = NULL;
@@ -30,7 +30,7 @@ void    copy_allocated_pages_content(t_allocs *old_allocated_pages) {
 
     curr = old_allocated_pages->arenas;
     while (curr != NULL) {
-        write(1, "a", 1);
+        // write(1, "a", 1);
         add_arena_to_allocated_pages(curr->addr, curr->type, curr->size);
         curr = curr->next;
     }

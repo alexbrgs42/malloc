@@ -9,10 +9,10 @@ void    *malloc(size_t size) {
 
     if (size <= 0)
         return NULL;
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
     if (size > SIZE_MAX - sizeof(t_metadata)) {
-        printf("Error: Overflow.\n");
-        // pthread_mutex_unlock(&memory);
+        ft_printf("Error: Overflow.\n");
+        pthread_mutex_unlock(&memory);
         return NULL;
     }
     allocated_size = ALIGN(size + sizeof(t_metadata));
@@ -22,7 +22,7 @@ void    *malloc(size_t size) {
         ptr = tiny_small_allocation(allocated_size, SMALL);
     else if (allocated_size > (size_t)(M / 100))
         ptr = large_allocation(allocated_size);
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
     return ptr;
 }
 
@@ -42,7 +42,7 @@ void    *large_allocation(size_t size) {
     
     ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (ptr == MAP_FAILED) {
-        printf("Error: mmap syscall failed.\n");
+        ft_printf("Error: mmap syscall failed.\n");
         return NULL;
     }
     if (allocated_pages == NULL) {

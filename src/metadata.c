@@ -8,10 +8,16 @@ void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool 
 }
 
 void    mark_block(void *ptr, size_t size) {
-    if (((t_metadata *)ptr)->size != size) {
-        set_metadata(ptr + size, ((t_metadata *)ptr)->size - size, ptr, ((t_metadata *)ptr)->next, false);
+    t_metadata  *next_meta = (t_metadata *)(((t_metadata *)ptr)->next);
+    t_metadata  *ptr_meta = (t_metadata *)ptr;
+
+    if (ptr_meta->size - size < sizeof(t_metadata) || ptr_meta->size == size) {
+        set_metadata(ptr, size, ptr_meta->prev, ptr_meta->next, true);
+        return ;
     }
-    if (((t_metadata *)ptr)->next != NULL)
-        set_metadata(((t_metadata *)ptr)->next, ((t_metadata *)(((t_metadata *)ptr)->next))->size, ptr + size, ((t_metadata *)(((t_metadata *)ptr)->next))->next, ((t_metadata *)(((t_metadata *)ptr)->next))->is_malloc);
-    set_metadata(ptr, size, ((t_metadata *)ptr)->prev, (((t_metadata *)ptr)->size != size ? ptr + size : ((t_metadata *)ptr)->next), true);
+    set_metadata(ptr + size, ptr_meta->size - size, ptr, ptr_meta->next, false);
+    if (ptr_meta->next != NULL) {
+        set_metadata(ptr_meta->next, next_meta->size, ptr + size, next_meta->next, next_meta->is_malloc);
+    }
+    set_metadata(ptr, size, ptr_meta->prev, ptr + size, true);
 }

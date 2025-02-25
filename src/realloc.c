@@ -6,19 +6,19 @@ void    *realloc(void *ptr, size_t size) {
     t_metadata  *meta;
 
 
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
     if (ptr == NULL) {
-        // pthread_mutex_unlock(&memory);
+        pthread_mutex_unlock(&memory);
         return malloc(size);
     }
     if (size == 0) {
-        // pthread_mutex_unlock(&memory);
+        pthread_mutex_unlock(&memory);
         free(ptr);
         return NULL;
     }
     meta = (t_metadata *)(ptr - sizeof(t_metadata));
     if (meta->size - sizeof(t_metadata) == size) {
-        // pthread_mutex_unlock(&memory);
+        pthread_mutex_unlock(&memory);
         return ptr;
     }
     available_size = available_size_for_realloc(meta);
@@ -30,21 +30,21 @@ void    *realloc(void *ptr, size_t size) {
         increase_realloc_at_same_address(meta, allocated_size);
     else
         decrease_realloc(meta, allocated_size);
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
     return ptr;
 }
 
 void    *increase_realloc_at_different_address(void *ptr, size_t size) {
     void    *new_ptr;
 
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
     new_ptr = malloc(size);
     if (new_ptr == NULL) {
         return NULL;
     }
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
     fill_reallocated_block(new_ptr, ptr);
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
     free(ptr);
     return new_ptr;
 }
@@ -95,7 +95,7 @@ void    decrease_realloc(t_metadata *meta, size_t size) {
         set_metadata((void *)meta + size, meta->size - size, meta, NULL, false);
         set_metadata(meta, size, meta->prev, (void *)meta + size, true);
     }
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
     free(meta->next + sizeof(t_metadata));
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
 }

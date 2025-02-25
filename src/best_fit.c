@@ -26,13 +26,14 @@ void  *best_fit(size_t size, t_type type) {
 
     best = NULL;
     curr_arena = allocated_pages->arenas;
+    // show_alloc_mem();
     while (curr_arena != NULL) {
-        write(1, "b", 1);
         if (curr_arena->type == type) {
             head = curr_arena->addr;
-            while (head != NULL) {
-                write(1, "c", 1);
-                if ((((t_metadata *)head)->is_malloc) == false && ((t_metadata *)head)->size >= size && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
+            while (head != NULL && curr_arena->addr + curr_arena->size > head + sizeof(t_metadata)) {
+                // write(1, "c", 1);
+                if ((((t_metadata *)head)->is_malloc) == false && ((t_metadata *)head)->size >= size
+                    && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
                     best = head;
                 }
                 head = ((t_metadata *)head)->next;

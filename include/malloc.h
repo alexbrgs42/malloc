@@ -3,13 +3,14 @@
 
 # include <string.h>
 # include <unistd.h>
-# include <stdio.h>
+// # include <stdio.h>
 # include <stdbool.h>
 # include <stdint.h>
 # include <inttypes.h>
 # include <pthread.h>
 # include <sys/mman.h>
 # include "../libft/include/libft.h"
+# include "../ft_printf/ft_printf.h"
 
 // #################################################################
 // #                                                               #
@@ -130,6 +131,7 @@ t_arena *get_last_arena();
 void    show_alloc_mem();
 void    show_alloc_mem_ex();
 void    show_metadata(void *ptr);
+void    show_hexa_dump_allocated_memory(t_metadata *current_metadata);
 void    show_arena_info(t_arena *arena);
 size_t  show_allocs_in_arena(void *arena);
 

@@ -14,8 +14,9 @@ SYM_LINK_NAME	:=	libft_malloc_$(HOSTTYPE).so
 NAME			:=	libft_malloc.so
 CFLAGS			:=	-Wall -Wextra -Werror -g3
 INCL			:=	-Iinclude
-LIB				:=	-Llibft -lft
+LIB				:=	-Llibft -lft -Lft_printf -lftprintf
 LIBFT			:=	libft/libft.a
+PRINTF			:=	ft_printf/libftprintf.a
 
 #################################################################
 #                                                               #
@@ -26,7 +27,7 @@ LIBFT			:=	libft/libft.a
 $(OBJ_PATH)/%.o:	$(SRC_PATH)/%.c
 	gcc -fPIC -shared $(CFLAGS) $(INCL) -c -o $@ $< $(LIB)
 
-$(NAME):	$(LIBFT) $(OBJ_PATH) $(OBJ)
+$(NAME):	$(LIBFT) $(PRINTF) $(OBJ_PATH) $(OBJ)
 	gcc -fPIC -shared $(CFLAGS) $(OBJ) -o $(NAME) $(LIB)
 	ln -sf $(NAME) $(SYM_LINK_NAME)
 
@@ -35,6 +36,9 @@ $(OBJ_PATH):
 
 $(LIBFT):
 	make -C libft
+
+$(PRINTF):
+	make -C ft_printf
 
 #################################################################
 #                                                               #
@@ -47,10 +51,12 @@ all:	$(NAME)
 clean:
 	rm -rf $(OBJ_PATH)
 	make clean -C libft
+	make clean -C ft_printf
 
 fclean:	clean
 	rm -rf $(NAME) $(SYM_LINK_NAME)
 	make fclean -C libft
+	make fclean -C ft_printf
 
 re: fclean all
 

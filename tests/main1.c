@@ -1,29 +1,32 @@
 #include "../include/malloc.h"
 
-// calloc - should decomment overflow protection
 // print last free zone that is less than 32 bytes and change next = NULL if realloc again (increase or decrease) or freed
 // do show_alloc_mem_ex()
-// use ft_printf
 // remove write
-// order in arena adresses (infinite loop when free etc)
-// infinite loop opening code (c) or vim
+// remove unnecessary in display.c
+// order in arena adresses (infinite loop) -> should handle it in print functions
+// crash with vim
+
+// gcc tests/main1.c -I./include -Llibft -lft -lft_malloc -L./ -o executable
 
 // LD_PRELOAD="./libft_malloc.so" /usr/bin/time -v /bin/ls
 
+// in gdb 
+// set exec-wrapper env 'LD_LIBRARY_PATH=.' 'LD_PRELOAD=libft_malloc.so'
+// then run
+
 int main() {
 
-    void *a;
-    for (int i = 0; i < 200; i++) 
-        a = malloc(100);
-    // show_alloc_mem();
-    write(1, "\n\n", 2);
-    void *g = realloc(a, 392764 + 420 - 10);
+    char *a = malloc(10);
+    char *b = malloc(102);
+    b = malloc(1202);
+
+    ft_memset(a, '\n', 10);
 
     (void)a;
-    // (void)g;
+    (void)b;
 
-    free(a);
-    show_alloc_mem();
+    show_alloc_mem_ex();
 
     return 0;
 }
