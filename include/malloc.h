@@ -85,8 +85,8 @@ extern pthread_mutex_t  memory;
 
 // malloc.c
 void    *malloc(size_t size);
-void    *tiny_small_allocation(size_t allocated_size, t_type type);
-void    *large_allocation(size_t allocated_size);
+void    *tiny_small_allocation(size_t allocated_size, size_t block_size, t_type type);
+void    *large_allocation(size_t allocated_size, size_t size);
 
 // free.c
 void    free(void *ptr);
@@ -100,14 +100,14 @@ void    *realloc(void *ptr, size_t size);
 void    *increase_realloc_at_different_address(void *ptr, size_t size);
 void    fill_reallocated_block(void *new_ptr, void *ptr);
 size_t  available_size_for_realloc(t_metadata *meta);
-void    increase_realloc_at_same_address(void *ptr, size_t size);
-void    decrease_realloc(void *ptr, size_t size);
+void    increase_realloc_at_same_address(void *ptr, size_t block_size, size_t size);
+void    decrease_realloc(void *ptr, size_t block_size, size_t size);
 
 // calloc.c
 void    *calloc(size_t nmemb, size_t size);
 
 // metadata.c
-void    mark_block(void *ptr, size_t allocated_size);
+void    mark_block(void *ptr, size_t block_size, size_t size);
 void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc);
 
 // best_fit.c

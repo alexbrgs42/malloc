@@ -1,6 +1,6 @@
 #include "../include/malloc.h"
 
-void  *get_block(size_t size, t_type type) {
+void  *get_block(size_t block_size, t_type type) {
     void  *best;
 
     best = NULL;
@@ -10,16 +10,16 @@ void  *get_block(size_t size, t_type type) {
             return NULL;
     }
     if (allocated_pages->arenas != NULL) {
-        best = best_fit(size, type);
+        best = best_fit(block_size, type);
     }
     // No arena or arenas full
     if (best == NULL) {
-        best = create_arena(type, get_arena_size_with_block(size));
+        best = create_arena(type, get_arena_size_with_block(block_size));
     }
     return best;
 }
 
-void  *best_fit(size_t size, t_type type) {
+void  *best_fit(size_t block_size, t_type type) {
     void    *head;
     void    *best;
     t_arena *arena;
@@ -30,8 +30,8 @@ void  *best_fit(size_t size, t_type type) {
         if (arena->type == type) {
             head = arena->addr;
             while (head != NULL && arena->addr + arena->size > head + sizeof(t_metadata)) {
-                if ((((t_metadata *)head)->is_malloc) == false && ((t_metadata *)head)->size >= size
-                    && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
+                if ((((t_metadata *)head)->is_malloc) == false && get_block_size(head) >= block_size
+                    && (best == NULL || get_block_size(head) < get_block_size(best))) {
                     best = head;
                 }
                 head = ((t_metadata *)head)->next;

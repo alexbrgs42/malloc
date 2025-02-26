@@ -70,7 +70,7 @@ void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {
     char            hexa[16] = "0123456789abcdef";
 
     ft_printf("\npointer %p -> %p\n-------\n", (void *)current_metadata + sizeof(t_metadata), (void *)current_metadata + current_metadata->size);
-    for (size_t i = sizeof(t_metadata); i < current_metadata->size; i++) {
+    for (size_t i = sizeof(t_metadata); i < current_metadata->size + sizeof(t_metadata); i++) {
         c = ((unsigned char *)current_metadata)[i];
         ft_printf("%c", hexa[c / 16]);
         ft_printf("%c", hexa[c % 16]);
@@ -112,9 +112,9 @@ size_t  show_allocs_in_arena(void *arena) {
     meta = (t_metadata *)arena;
     while (meta != NULL) {
         if (meta->is_malloc == true) {
-            size = meta->size - sizeof(t_metadata);
+            size = meta->size;
             ptr = (void *)meta + sizeof(t_metadata);
-            end = (void *)meta + meta->size;
+            end = ptr + meta->size;
             ft_printf("%p - %p : %ld bytes\n", ptr, end, size);
             total += size;
         }

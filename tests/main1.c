@@ -1,7 +1,6 @@
 #include "../include/malloc.h"
 
 // verify display.c
-// replace size with get_block_size and store real size instead
 
 
 // gcc tests/main1.c -I./include -Llibft -lft -lft_malloc -L./ -o executable
@@ -11,6 +10,8 @@
 // in gdb 
 // set exec-wrapper env 'LD_LIBRARY_PATH=.' 'LD_PRELOAD=libft_malloc.so'
 // then run
+
+// should add tests main
 
 int main() {
 
@@ -32,7 +33,9 @@ int main() {
     b = malloc(12);
     free(a);
     b = malloc(18);
-    b = malloc(18);
+    b = malloc(3293);
+    free(b);
+    free(b);
     b = malloc(18);
     b = malloc(18);
     b = malloc(18);

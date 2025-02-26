@@ -12,7 +12,7 @@ void    free(void *ptr) {
         pthread_mutex_unlock(&memory);
         return ;
     }
-    set_metadata(free_meta, free_meta->size, free_meta->prev, free_meta->next, false);
+    set_metadata(free_meta, get_block_size(free_meta), free_meta->prev, free_meta->next, false);
     if (is_block_free(free_meta->next) == true) {
         defragment((void *)free_meta, free_meta->next);
     }
@@ -27,14 +27,14 @@ void    free(void *ptr) {
 void    defragment(void *first_block, void *second_block) {
     t_metadata  *first_meta;
     t_metadata  *second_meta;
-    t_metadata  *second_next_meta;
+    t_metadata  *next_meta;
 
     first_meta = (t_metadata *)first_block;
     second_meta = (t_metadata *)second_block;
-    set_metadata(first_block, first_meta->size + second_meta->size, first_meta->prev, second_meta->next, false);
+    set_metadata(first_block, get_block_size(first_meta) + get_block_size(second_meta), first_meta->prev, second_meta->next, false);
     if (second_meta->next != NULL) {
-        second_next_meta = ((t_metadata *)second_meta->next);
-        set_metadata(second_meta->next, second_next_meta->size, first_block, second_next_meta->next, second_next_meta->is_malloc);
+        next_meta = ((t_metadata *)second_meta->next);
+        set_metadata(next_meta, next_meta->size, first_block, next_meta->next, next_meta->is_malloc);
     }
 }
 
@@ -57,7 +57,7 @@ void    free_arena_if_empty(t_metadata *free_meta) {
         }
         curr_arena->next = curr_arena->next->next;
     }
-    munmap(free_meta, free_meta->size);
+    munmap(free_meta, get_block_size(free_meta));
     if (allocated_pages->arenas == NULL) {
         munmap(allocated_pages, allocated_pages->mmap_size);
         allocated_pages = NULL;

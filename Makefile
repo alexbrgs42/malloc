@@ -12,7 +12,7 @@ endif
 
 NAME			:=	libft_malloc_$(HOSTTYPE).so
 SYM_LINK_NAME	:=	libft_malloc.so
-CFLAGS			:=	-Wall -Wextra -Werror -g3
+CFLAGS			:=	-Wall -Wextra -g3
 INCL			:=	-Iinclude
 LIB				:=	-Llibft -lft -Lft_printf -lftprintf
 LIBFT			:=	libft/libft.a
