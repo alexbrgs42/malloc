@@ -101,7 +101,6 @@ t_arena *get_last_arena() {
 
     last_arena = allocated_pages->arenas;
     while (last_arena->next != NULL) {
-        // write(1, "j", 1);
         last_arena = last_arena->next;
     }
     return last_arena;

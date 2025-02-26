@@ -4,10 +4,10 @@ void    show_alloc_mem() {
     size_t      total;
     t_arena     *current_arena;
 
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         ft_printf("No allocations.\n");
-        // pthread_mutex_unlock(&memory);
+        pthread_mutex_unlock(&memory);
         return ;
     }
     total = 0;
@@ -18,17 +18,17 @@ void    show_alloc_mem() {
         current_arena = current_arena->next;
     }
     ft_printf("Total : %d bytes\n", total);
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
 }
 
 void    show_alloc_mem_ex() {
     t_arena     *current_arena;
     t_metadata  *current_metadata;
 
-    // pthread_mutex_lock(&memory);
+    pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
         ft_printf("No allocations.\n");
-        // pthread_mutex_unlock(&memory);
+        pthread_mutex_unlock(&memory);
         return ;
     }
     current_arena = allocated_pages->arenas;
@@ -43,7 +43,7 @@ void    show_alloc_mem_ex() {
         current_arena = current_arena->next;
         ft_printf("\n");
     }
-    // pthread_mutex_unlock(&memory);
+    pthread_mutex_unlock(&memory);
 }
 
 void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {
@@ -68,9 +68,9 @@ void    show_metadata(void *ptr) {
     if (ptr == NULL)
         return ;
     meta = (t_metadata *)(ptr - sizeof(t_metadata));
-    format = "METADATA\n--------\naddress: %p\nsize = %d\nprev = %s%p\nnext = %s%p\nis allocated = %s\n\n";
+    format = "METADATA\n--------\naddress: %p\nsize = %d\nprev = %p\nnext = %p\nis allocated = %s\n\n";
     while (meta != NULL) {
-        ft_printf(format, (uintptr_t)meta, meta->size, (meta->prev == NULL ? "": ""), (uintptr_t)meta->prev, (meta->next == NULL ? "": ""), (uintptr_t)meta->next, (meta->is_malloc ? "true" : "false"));
+        ft_printf(format, meta, meta->size, meta->prev, meta->next, (meta->is_malloc ? "true" : "false"));
         meta = (t_metadata *)meta->next;
     }
 }

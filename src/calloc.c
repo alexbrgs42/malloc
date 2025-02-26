@@ -19,7 +19,6 @@ void    *calloc(size_t nmemb, size_t size) {
         return NULL;
     pthread_mutex_lock(&memory);
     ft_bzero(ptr, nmemb * size);
-    ft_printf("calloc %p size %d\n", ptr, size * nmemb);
     pthread_mutex_unlock(&memory);
     return ptr;
 }

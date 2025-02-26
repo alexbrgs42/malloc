@@ -12,7 +12,7 @@ void    free(void *ptr) {
         pthread_mutex_unlock(&memory);
         return ;
     }
-    free_meta->is_malloc = false;
+    set_metadata(free_meta, free_meta->size, free_meta->prev, free_meta->next, false);
     if (is_block_free(free_meta->next) == true) {
         defragment((void *)free_meta, free_meta->next);
     }
@@ -21,20 +21,21 @@ void    free(void *ptr) {
         defragment((void *)free_meta, free_meta->next);
     }
     free_arena_if_empty(free_meta);
-    ft_printf("free %p\n", ptr);
     pthread_mutex_unlock(&memory);
 }
 
 void    defragment(void *first_block, void *second_block) {
     t_metadata  *first_meta;
     t_metadata  *second_meta;
+    t_metadata  *second_next_meta;
 
     first_meta = (t_metadata *)first_block;
     second_meta = (t_metadata *)second_block;
-    ft_printf("Defragment %p with %p\n", first_block, second_block);
+    
     set_metadata(first_block, first_meta->size + second_meta->size, first_meta->prev, second_meta->next, false);
     if (second_meta->next != NULL) {
-        set_metadata(second_meta->next, ((t_metadata *)second_meta->next)->size, first_block, ((t_metadata *)second_meta->next)->next, ((t_metadata *)second_meta->next)->is_malloc);
+        second_next_meta = ((t_metadata *)second_meta->next);
+        set_metadata(second_meta->next, second_next_meta->size, first_block, second_next_meta->next, second_next_meta->is_malloc);
     }
 }
 
@@ -52,7 +53,6 @@ void    free_arena_if_empty(t_metadata *free_meta) {
         }
         else {
             while (curr_arena->next->addr != free_meta) {
-                // write(1, "f", 1);
                 curr_arena = curr_arena->next;
             }
             curr_arena->next = curr_arena->next->next;
@@ -69,19 +69,16 @@ bool    is_block_freeable(void *meta_addr) {
     t_arena     *curr_arena;
     t_metadata  *curr_meta;
 
-    // show_alloc_mem();
     if (allocated_pages == NULL || allocated_pages->arenas == NULL)
         return false;
     curr_arena = allocated_pages->arenas;
     while (curr_arena != NULL && (curr_arena->addr > meta_addr || curr_arena->addr + curr_arena->size <= meta_addr)) {
-        // write(1, "go", 2);
         curr_arena = curr_arena->next;
     }
     if (curr_arena == NULL)
         return false;
     curr_meta = (t_metadata *)curr_arena;
     while (curr_meta != NULL) {
-        // write(1, "h", 1);
         if ((void *)curr_meta == meta_addr)
             return (curr_meta->is_malloc);
         curr_meta = (t_metadata *)(curr_meta->next);

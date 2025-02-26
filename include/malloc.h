@@ -100,8 +100,8 @@ void    *realloc(void *ptr, size_t size);
 void    *increase_realloc_at_different_address(void *ptr, size_t size);
 void    fill_reallocated_block(void *new_ptr, void *ptr);
 size_t  available_size_for_realloc(t_metadata *meta);
-void    increase_realloc_at_same_address(t_metadata *meta, size_t size);
-void    decrease_realloc(t_metadata *meta, size_t size);
+void    increase_realloc_at_same_address(void *ptr, size_t size);
+void    decrease_realloc(void *ptr, size_t size);
 
 // calloc.c
 void    *calloc(size_t nmemb, size_t size);

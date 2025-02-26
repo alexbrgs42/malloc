@@ -6,7 +6,6 @@ void    *realloc(void *ptr, size_t size) {
     t_metadata  *meta;
 
     pthread_mutex_lock(&memory);
-    ft_printf("realloc %p size %d\n", ptr, size);
     if (ptr == NULL) {
         pthread_mutex_unlock(&memory);
         return malloc(size);
@@ -26,10 +25,10 @@ void    *realloc(void *ptr, size_t size) {
     if (available_size < size)
         return increase_realloc_at_different_address(ptr, allocated_size);
     if (meta->size < allocated_size) {
-        increase_realloc_at_same_address(meta, allocated_size);
+        increase_realloc_at_same_address((void *)meta, allocated_size);
     }
     else {
-        decrease_realloc(meta, allocated_size);
+        decrease_realloc((void *)meta, allocated_size);
     }
     pthread_mutex_unlock(&memory);
     return ptr;
@@ -73,31 +72,57 @@ void    fill_reallocated_block(void *new_ptr, void *ptr) {
         ((char *)new_ptr)[i] = ((char *)ptr)[i];
 }
 
-void    increase_realloc_at_same_address(t_metadata *meta, size_t size) {
-    ft_printf("increase %p size %d\n", (void *)meta + sizeof(t_metadata), size);
-    if (((t_metadata *)meta->next)->next == NULL && meta->next + ((t_metadata *)meta->next)->size < (void *)meta + size + sizeof(t_metadata)) {
-        set_metadata(meta, size, meta->prev, NULL, true);
+void    increase_realloc_at_same_address(void *ptr, size_t size) {
+    t_metadata  *meta;
+    t_metadata  *next_meta;
+    t_metadata  *next_next_meta;
+
+    meta = (t_metadata *)ptr;
+    next_meta = ((t_metadata *)meta->next);
+    next_next_meta = ((t_metadata *)next_meta->next);
+    if ((void *)next_meta + next_meta->size < ptr + size + sizeof(t_metadata)) {
+        size = meta->size + next_meta->size;
     }
-    else {
-        set_metadata((void *)meta + size, ((t_metadata *)meta->next)->size - (size - meta->size), meta, ((t_metadata *)meta->next)->next, false);
-        set_metadata(meta, size, meta->prev, (void *)meta + size, true);
-        if (((t_metadata *)meta->next)->next != NULL)
-            set_metadata(((t_metadata *)meta->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->size, meta->next, ((t_metadata *)((t_metadata *)meta->next)->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->is_malloc);
+    if (size == meta->size + next_meta->size) {
+        set_metadata(ptr, size, meta->prev, next_next_meta, true);
+        if (next_next_meta != NULL) {
+            set_metadata(next_next_meta, next_next_meta->size, ptr, next_next_meta->next, next_next_meta->is_malloc);
+        }
+        return ;
     }
+    set_metadata(ptr + size, next_meta->size - (size - meta->size), ptr, next_next_meta, false);
+    if (next_next_meta != NULL)
+        set_metadata(next_next_meta, next_next_meta->size, ptr + size, next_next_meta->next, next_next_meta->is_malloc);
+    set_metadata(ptr, size, meta->prev, ptr + size, true);
 }
 
-void    decrease_realloc(t_metadata *meta, size_t size) {
-    ft_printf("decrease %p size %d\n", (void *)meta + sizeof(t_metadata), size);
-    if (meta->next != NULL) {
-        set_metadata((void *)meta + size, ((t_metadata *)meta->next)->size - (size - meta->size), meta, ((t_metadata *)meta->next)->next, true);
-        set_metadata(meta, size, meta->prev, (void *)meta + size, true);
-        if (((t_metadata *)meta->next)->next != NULL)
-            set_metadata(((t_metadata *)meta->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->size, meta->next, ((t_metadata *)((t_metadata *)meta->next)->next)->next, ((t_metadata *)((t_metadata *)meta->next)->next)->is_malloc);
+void    decrease_realloc(void *ptr, size_t size) {
+    t_metadata  *meta;
+    t_metadata  *next_meta;
+    t_metadata  *next_next_meta;
+
+    meta = (t_metadata *)ptr;
+    next_meta = ((t_metadata *)meta->next);
+    
+    if (meta->size - size < sizeof(t_metadata) && (next_meta == NULL || next_meta->is_malloc == true))
+        return ;
+    if (next_meta == NULL) {
+        set_metadata(ptr + size, meta->size - size, ptr, NULL, false);
+        set_metadata(ptr, size, meta->prev, ptr + size, true);
+        return ;
     }
-    else {
-        set_metadata((void *)meta + size, meta->size - size, meta, NULL, false);
-        set_metadata(meta, size, meta->prev, (void *)meta + size, true);
+    if (next_meta->is_malloc == true) {
+        set_metadata(ptr + size, meta->size - size, ptr, next_meta, false);
+        set_metadata(next_meta, next_meta->size, ptr + size, next_meta->next, next_meta->is_malloc);
+        set_metadata(ptr, size, meta->prev, ptr + size, true);
+        return ;
     }
+    next_next_meta = ((t_metadata *)next_meta->next);
+    set_metadata(ptr + size, next_meta->size + (meta->size - size), ptr, next_next_meta, false);
+    if (next_next_meta != NULL)
+        set_metadata(next_next_meta, next_next_meta->size, ptr + size, next_next_meta->next, next_next_meta->is_malloc);
+    set_metadata(ptr, size, meta->prev, ptr + size, true);
+
     pthread_mutex_unlock(&memory);
     free(meta->next + sizeof(t_metadata));
     pthread_mutex_lock(&memory);

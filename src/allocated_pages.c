@@ -30,7 +30,6 @@ void    copy_allocated_pages_content(t_allocs *old_allocated_pages) {
 
     curr = old_allocated_pages->arenas;
     while (curr != NULL) {
-        // write(1, "a", 1);
         add_arena_to_allocated_pages(curr->addr, curr->type, curr->size);
         curr = curr->next;
     }

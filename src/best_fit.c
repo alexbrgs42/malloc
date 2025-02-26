@@ -22,16 +22,14 @@ void  *get_block(size_t size, t_type type) {
 void  *best_fit(size_t size, t_type type) {
     void    *head;
     void    *best;
-    t_arena *curr_arena;
+    t_arena *arena;
 
     best = NULL;
-    curr_arena = allocated_pages->arenas;
-    // show_alloc_mem();
-    while (curr_arena != NULL) {
-        if (curr_arena->type == type) {
-            head = curr_arena->addr;
-            while (head != NULL && curr_arena->addr + curr_arena->size > head + sizeof(t_metadata)) {
-                // write(1, "c", 1);
+    arena = allocated_pages->arenas;
+    while (arena != NULL) {
+        if (arena->type == type) {
+            head = arena->addr;
+            while (head != NULL && arena->addr + arena->size > head + sizeof(t_metadata)) {
                 if ((((t_metadata *)head)->is_malloc) == false && ((t_metadata *)head)->size >= size
                     && (best == NULL || ((t_metadata *)head)->size < ((t_metadata *)best)->size)) {
                     best = head;
@@ -39,7 +37,7 @@ void  *best_fit(size_t size, t_type type) {
                 head = ((t_metadata *)head)->next;
             }
         }
-        curr_arena = curr_arena->next;
+        arena = arena->next;
     }
     return best;
 }

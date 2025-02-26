@@ -22,7 +22,6 @@ void    *malloc(size_t size) {
         ptr = tiny_small_allocation(allocated_size, SMALL);
     else if (allocated_size > (size_t)(M / 100))
         ptr = large_allocation(allocated_size);
-    ft_printf("malloc %p size %d\n", ptr, allocated_size);
     pthread_mutex_unlock(&memory);
     return ptr;
 }
