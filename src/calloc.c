@@ -8,7 +8,6 @@ void    *calloc(size_t nmemb, size_t size) {
         pthread_mutex_unlock(&memory);
         return NULL;
     }
-    // condition suffisante ?
     if (nmemb * size <= 0 || nmemb * size < nmemb || nmemb * size < size) {
         pthread_mutex_unlock(&memory);
         return NULL;

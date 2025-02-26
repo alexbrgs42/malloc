@@ -122,7 +122,6 @@ void    copy_allocated_pages_content(t_allocs *old_allocated_pages);
 // new_arena.c
 void    *create_arena(t_type type, size_t size);
 int     add_arena_to_allocated_pages(void *addr, t_type type, size_t size);
-void    insert_arena_in_list(t_arena *new_arena);
 char    *get_arena_text_type(t_arena *arena);
 size_t  get_arena_size_with_block(size_t blk_size);
 t_arena *get_last_arena();

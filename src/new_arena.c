@@ -40,33 +40,9 @@ int add_arena_to_allocated_pages(void *addr, t_type type, size_t size) {
     new_arena->next = NULL;
     if (allocated_pages->arenas == NULL)
         allocated_pages->arenas = new_arena;
-    else {
+    else
         last_arena->next = new_arena;
-        // insert_arena_in_list(new_arena);
-    }
     return EXIT_SUCCESS;
-}
-
-void    insert_arena_in_list(t_arena *new_arena) {
-    t_arena *prev_arena;
-
-    prev_arena = allocated_pages->arenas;
-    if (prev_arena->addr > new_arena->addr) {
-        new_arena->next = prev_arena;
-        allocated_pages->arenas = new_arena;
-        return ;
-    }
-    while (prev_arena->next != NULL && prev_arena->next->addr < new_arena->addr) {
-        prev_arena = prev_arena->next;
-    }
-    if (prev_arena->next == NULL) {
-        prev_arena->next = new_arena;
-        new_arena->next = NULL;
-    }
-    else {
-        new_arena->next = prev_arena->next;
-        prev_arena->next = new_arena;
-    }
 }
 
 char    *get_arena_text_type(t_arena *arena) {

@@ -1,7 +1,6 @@
 # include "../include/malloc.h"
 
 void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc) {
-    ft_bzero(ptr, sizeof(t_metadata));
     ptr->size = size;
     ptr->prev = prev;
     ptr->next = next;
@@ -9,10 +8,11 @@ void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool 
 }
 
 void mark_block(void *ptr, size_t size) {
-    t_metadata *ptr_meta = (t_metadata *)ptr;
-    t_metadata *next_meta = (t_metadata *)(ptr_meta->next);
+    t_metadata *ptr_meta;
+    t_metadata *next_meta;
 
-
+    ptr_meta = (t_metadata *)ptr;
+    next_meta = (t_metadata *)(ptr_meta->next);
     if (ptr_meta->size - size < sizeof(t_metadata))
         size = ptr_meta->size;
 
@@ -26,6 +26,3 @@ void mark_block(void *ptr, size_t size) {
     set_metadata(ptr, size, ptr_meta->prev, ptr + size, true);
 
 }
-
-// 0x7f9dfff933c8 malloc et calloc 0x7f9df86fc020
-// 0x7f9e006d7820

@@ -31,7 +31,6 @@ void    defragment(void *first_block, void *second_block) {
 
     first_meta = (t_metadata *)first_block;
     second_meta = (t_metadata *)second_block;
-    
     set_metadata(first_block, first_meta->size + second_meta->size, first_meta->prev, second_meta->next, false);
     if (second_meta->next != NULL) {
         second_next_meta = ((t_metadata *)second_meta->next);
@@ -46,22 +45,22 @@ bool    is_block_free(void *block) {
 void    free_arena_if_empty(t_metadata *free_meta) {
     t_arena *curr_arena;
 
-    if (free_meta->prev == NULL && free_meta->next == NULL) {
-        curr_arena = allocated_pages->arenas;
-        if (curr_arena->addr == free_meta) {
-            allocated_pages->arenas = allocated_pages->arenas->next;
+    if (free_meta->prev != NULL || free_meta->next != NULL)
+        return ;
+    curr_arena = allocated_pages->arenas;
+    if (curr_arena->addr == free_meta) {
+        allocated_pages->arenas = allocated_pages->arenas->next;
+    }
+    else {
+        while (curr_arena->next->addr != free_meta) {
+            curr_arena = curr_arena->next;
         }
-        else {
-            while (curr_arena->next->addr != free_meta) {
-                curr_arena = curr_arena->next;
-            }
-            curr_arena->next = curr_arena->next->next;
-        }
-        munmap(free_meta, free_meta->size);
-        if (allocated_pages->arenas == NULL) {
-            munmap(allocated_pages, allocated_pages->mmap_size);
-            allocated_pages = NULL;
-        }
+        curr_arena->next = curr_arena->next->next;
+    }
+    munmap(free_meta, free_meta->size);
+    if (allocated_pages->arenas == NULL) {
+        munmap(allocated_pages, allocated_pages->mmap_size);
+        allocated_pages = NULL;
     }
 }
 

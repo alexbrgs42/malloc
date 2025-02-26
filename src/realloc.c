@@ -24,12 +24,10 @@ void    *realloc(void *ptr, size_t size) {
     allocated_size = ALIGN(size + sizeof(t_metadata));
     if (available_size < size)
         return increase_realloc_at_different_address(ptr, allocated_size);
-    if (meta->size < allocated_size) {
-        increase_realloc_at_same_address((void *)meta, allocated_size);
-    }
-    else {
-        decrease_realloc((void *)meta, allocated_size);
-    }
+    if (meta->size < allocated_size)
+        increase_realloc_at_same_address(meta, allocated_size);
+    else
+        decrease_realloc(meta, allocated_size);
     pthread_mutex_unlock(&memory);
     return ptr;
 }
@@ -39,9 +37,8 @@ void    *increase_realloc_at_different_address(void *ptr, size_t size) {
 
     pthread_mutex_unlock(&memory);
     new_ptr = malloc(size);
-    if (new_ptr == NULL) {
+    if (new_ptr == NULL)
         return NULL;
-    }
     pthread_mutex_lock(&memory);
     fill_reallocated_block(new_ptr, ptr);
     pthread_mutex_unlock(&memory);
@@ -85,9 +82,8 @@ void    increase_realloc_at_same_address(void *ptr, size_t size) {
     }
     if (size == meta->size + next_meta->size) {
         set_metadata(ptr, size, meta->prev, next_next_meta, true);
-        if (next_next_meta != NULL) {
+        if (next_next_meta != NULL)
             set_metadata(next_next_meta, next_next_meta->size, ptr, next_next_meta->next, next_next_meta->is_malloc);
-        }
         return ;
     }
     set_metadata(ptr + size, next_meta->size - (size - meta->size), ptr, next_next_meta, false);
@@ -103,7 +99,6 @@ void    decrease_realloc(void *ptr, size_t size) {
 
     meta = (t_metadata *)ptr;
     next_meta = ((t_metadata *)meta->next);
-    
     if (meta->size - size < sizeof(t_metadata) && (next_meta == NULL || next_meta->is_malloc == true))
         return ;
     if (next_meta == NULL) {
@@ -122,7 +117,6 @@ void    decrease_realloc(void *ptr, size_t size) {
     if (next_next_meta != NULL)
         set_metadata(next_next_meta, next_next_meta->size, ptr + size, next_next_meta->next, next_next_meta->is_malloc);
     set_metadata(ptr, size, meta->prev, ptr + size, true);
-
     pthread_mutex_unlock(&memory);
     free(meta->next + sizeof(t_metadata));
     pthread_mutex_lock(&memory);

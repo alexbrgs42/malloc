@@ -33,7 +33,7 @@ void    *tiny_small_allocation(size_t size, t_type type) {
     if (ptr == NULL)
         return NULL;
     mark_block(ptr, size);
-    return (void *)(ptr + sizeof(t_metadata));
+    return (ptr + sizeof(t_metadata));
 }
 
 void    *large_allocation(size_t size) {
@@ -54,5 +54,5 @@ void    *large_allocation(size_t size) {
     if (ret == EXIT_FAILURE)
         return NULL;
     set_metadata(ptr, size, NULL, NULL, true);
-    return (void *)(ptr + sizeof(t_metadata));
+    return (ptr + sizeof(t_metadata));
 }
