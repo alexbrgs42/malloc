@@ -111,8 +111,10 @@ void    mark_block(void *ptr, size_t allocated_size);
 void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool is_malloc);
 
 // best_fit.c
-void  *get_block(size_t size, t_type type);
-void  *best_fit(size_t size, t_type type);
+void    *get_block(size_t size, t_type type);
+void    *best_fit(size_t size, t_type type);
+size_t  get_block_size(t_metadata *meta);
+t_arena *get_arena_of_block(t_metadata *meta);
 
 // allocated_pages.c
 void    create_allocated_pages(size_t mmap_size);
@@ -128,6 +130,7 @@ t_arena *get_last_arena();
 
 // display.c
 void    show_alloc_mem();
+int     show_ordered_arenas();
 void    show_alloc_mem_ex();
 void    show_metadata(void *ptr);
 void    show_hexa_dump_allocated_memory(t_metadata *current_metadata);

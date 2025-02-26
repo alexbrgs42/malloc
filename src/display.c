@@ -2,7 +2,6 @@
 
 void    show_alloc_mem() {
     size_t      total;
-    t_arena     *current_arena;
 
     pthread_mutex_lock(&memory);
     if (allocated_pages == NULL || allocated_pages->arenas == NULL) {
@@ -10,15 +9,35 @@ void    show_alloc_mem() {
         pthread_mutex_unlock(&memory);
         return ;
     }
-    total = 0;
-    current_arena = allocated_pages->arenas;
-    while (current_arena != NULL) {
-        show_arena_info(current_arena);
-        total += show_allocs_in_arena(current_arena->addr);
-        current_arena = current_arena->next;
-    }
-    ft_printf("Total : %d bytes\n", total);
+    total = show_ordered_arenas();
+    ft_printf("Total : %ld bytes\n", total);
     pthread_mutex_unlock(&memory);
+}
+
+int show_ordered_arenas() {
+    t_arena    *current;
+    t_arena    *ordered;
+    t_arena    *smaller;
+    t_arena    *last_smaller;
+    size_t      total;
+
+    total = 0;
+    ordered = allocated_pages->arenas;
+    last_smaller = NULL;
+    while (ordered != NULL) {
+        current = allocated_pages->arenas;
+        smaller = allocated_pages->arenas;
+        while (current != NULL) {
+            if (smaller->addr > current->addr && (last_smaller == NULL || current->addr > last_smaller->addr))
+                smaller = current;
+            current = current->next;
+        }
+        show_arena_info(smaller);
+        total += show_allocs_in_arena(smaller->addr);
+        ordered = ordered->next;
+        last_smaller = smaller;
+    }
+    return total;
 }
 
 void    show_alloc_mem_ex() {
@@ -68,7 +87,7 @@ void    show_metadata(void *ptr) {
     if (ptr == NULL)
         return ;
     meta = (t_metadata *)(ptr - sizeof(t_metadata));
-    format = "METADATA\n--------\naddress: %p\nsize = %d\nprev = %p\nnext = %p\nis allocated = %s\n\n";
+    format = "METADATA\n--------\naddress: %p\nsize = %ld\nprev = %p\nnext = %p\nis allocated = %s\n\n";
     while (meta != NULL) {
         ft_printf(format, meta, meta->size, meta->prev, meta->next, (meta->is_malloc ? "true" : "false"));
         meta = (t_metadata *)meta->next;
@@ -77,11 +96,9 @@ void    show_metadata(void *ptr) {
 
 void    show_arena_info(t_arena *arena) {
     void    *start;
-    void    *end;
 
     start = arena->addr;
-    end = arena->addr + arena->size;
-    ft_printf("%s : %p -> %p\n", get_arena_text_type(arena), (uintptr_t)start, (uintptr_t)end);
+    ft_printf("%s : %p\n", get_arena_text_type(arena), start);
 }
 
 size_t  show_allocs_in_arena(void *arena) {
@@ -98,14 +115,8 @@ size_t  show_allocs_in_arena(void *arena) {
             size = meta->size - sizeof(t_metadata);
             ptr = (void *)meta + sizeof(t_metadata);
             end = (void *)meta + meta->size;
-            ft_printf("malloc - %p - %p : %d bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
+            ft_printf("%p - %p : %ld bytes\n", ptr, end, size);
             total += size;
-        }
-        else {
-            size = meta->size;
-            ptr = (void *)meta;
-            end = (void *)meta + meta->size;
-            ft_printf("free   - %p - %p : %d bytes\n", (uintptr_t)ptr, (uintptr_t)end, size);
         }
         meta = (t_metadata *)(meta->next);
     }

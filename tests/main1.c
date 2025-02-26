@@ -1,9 +1,7 @@
 #include "../include/malloc.h"
 
-// remove unnecessary in display.c
-// order in arena adresses (infinite loop) -> should handle it in print functions
-// print real size
-// add size_t for ft_printf
+// verify display.c
+// replace size with get_block_size and store real size instead
 
 
 // gcc tests/main1.c -I./include -Llibft -lft -lft_malloc -L./ -o executable
@@ -18,31 +16,32 @@ int main() {
 
     char *a = malloc(10);
     char *b = malloc(102);
-    b = malloc(6666666668);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
-    b = malloc(1202);
+    b = malloc(66666);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    a = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    b = malloc(12);
+    free(a);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
+    b = malloc(18);
 
     ft_memset(a, '\n', 10);
 
@@ -50,6 +49,12 @@ int main() {
     (void)b;
 
     show_alloc_mem();
+
+    ft_printf("\n\n");
+
+    ft_printf("%ld\n", get_block_size((void *)b - sizeof(t_metadata)));
+
+    // show_alloc_mem_ex();
 
     return 0;
 }

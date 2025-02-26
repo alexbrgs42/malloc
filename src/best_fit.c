@@ -41,3 +41,29 @@ void  *best_fit(size_t size, t_type type) {
     }
     return best;
 }
+
+size_t  get_block_size(t_metadata *meta) {
+    t_arena *arena;
+
+    if (meta->next == NULL) {
+        arena = get_arena_of_block(meta);
+        if (arena == NULL)
+            return 0;
+        return (size_t)(arena->addr + arena->size - (void *)meta);
+    }
+    return (size_t)(meta->next - (void *)meta);
+}
+
+t_arena *get_arena_of_block(t_metadata *meta) {
+    t_arena    *arena;
+
+    if (allocated_pages == NULL)
+        return NULL;
+    arena = allocated_pages->arenas;
+    while (arena != NULL) {
+        if ((void *)meta >= arena->addr && (void *)meta < arena->addr + arena->size)
+            return arena;
+        arena = arena->next;
+    }
+    return NULL;
+}

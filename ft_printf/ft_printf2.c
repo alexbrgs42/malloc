@@ -31,12 +31,7 @@ void	ft_putnbr_pointer(size_t n, int *nb)
 {
 	char	*hexa;
 
-	hexa = "0123456789abcdef";
-	// if (n < 0)
-	// {
-	// 	ft_putchar('-', nb);
-	// 	n = -n;
-	// }
+	hexa = "0123456789ABCDEF";
 	if (n >= 16)
 	{
 		ft_putnbr_pointer(n / 16, nb);
@@ -68,6 +63,17 @@ void	ft_putnbr(long n, int *nb)
 	{
 		ft_putnbr(n / 10, nb);
 		ft_putnbr(n % 10, nb);
+	}
+	else
+		ft_putchar(n + '0', nb);
+}
+
+void	ft_putnbr_size_t(size_t n, int *nb)
+{
+	if (n >= 10)
+	{
+		ft_putnbr_size_t(n / 10, nb);
+		ft_putnbr_size_t(n % 10, nb);
 	}
 	else
 		ft_putchar(n + '0', nb);

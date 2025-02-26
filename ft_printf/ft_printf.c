@@ -75,6 +75,10 @@ void	ft_printf_bis(va_list ap, int *nb, const char *str, int *i)
 		ft_putnbr_hexa((unsigned int)va_arg(ap, int), 16, nb, 0);
 	else if (str[*i] == '%' && str[*i + 1] == 'X')
 		ft_putnbr_hexa((unsigned int)va_arg(ap, int), 16, nb, 1);
+	else if (str[*i] == '%' && str[*i + 1] == 'l' && str[*i + 2] == 'd') {
+		ft_putnbr_size_t((size_t)va_arg(ap, size_t), nb);
+		(*i)++;
+	}
 	else if (str[*i] == '%' && str[*i + 1] == '%')
 		ft_putchar('%', nb);
 	else
