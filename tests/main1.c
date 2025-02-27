@@ -1,63 +1,32 @@
 #include "../include/malloc.h"
 
-// verify display.c
-
-
-// gcc tests/main1.c -I./include -Llibft -lft -lft_malloc -L./ -o executable
-
-// LD_PRELOAD="./libft_malloc.so" /usr/bin/time -v /bin/ls
-
-// in gdb 
-// set exec-wrapper env 'LD_LIBRARY_PATH=.' 'LD_PRELOAD=libft_malloc.so'
-// then run
-
-// should add tests main
-
 int main() {
 
     char *a = malloc(10);
-    char *b = malloc(102);
-    b = malloc(66666);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    a = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    b = malloc(12);
-    free(a);
-    b = malloc(18);
-    b = malloc(3293);
-    free(b);
-    free(b);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
-    b = malloc(18);
+    int *b = calloc(20, 10);
 
-    ft_memset(a, '\n', 10);
+    ft_memset(a, 'h', 10);
+    a[1] = 25;
+    b[0] = 10;
 
-    (void)a;
-    (void)b;
-
+    ft_printf("First show_alloc_mem():\n----------------------\n");
     show_alloc_mem();
 
     ft_printf("\n\n");
+    ft_printf("First show_alloc_mem_ex():\n-------------------------\n");
+    show_alloc_mem_ex();
 
-    ft_printf("%ld\n", get_block_size((void *)b - sizeof(t_metadata)));
+    free(b);
 
-    // show_alloc_mem_ex();
+    ft_printf("\n\n");
+    ft_printf("Second show_alloc_mem():\n-----------------------\n");
+    show_alloc_mem();
+    
+    free(a);
+    
+    ft_printf("\n\n");
+    ft_printf("Third show_alloc_mem():\n----------------------\n");
+    show_alloc_mem();
 
     return 0;
 }

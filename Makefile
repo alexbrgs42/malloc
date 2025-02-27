@@ -1,7 +1,7 @@
 SRC_PATH	:=	src
 OBJ_PATH	:=	obj
 
-SRC_FILES	:=	malloc.c free.c realloc.c calloc.c best_fit.c display.c allocated_pages.c metadata.c new_arena.c
+SRC_FILES	:=	global_variable.c malloc.c free.c realloc.c calloc.c best_fit.c display.c allocated_pages.c metadata.c new_arena.c
 
 SRC	:=	$(addprefix $(SRC_PATH)/, $(SRC_FILES))
 OBJ	:=	$(patsubst $(SRC_PATH)/%, $(OBJ_PATH)/%, $(SRC:.c=.o))

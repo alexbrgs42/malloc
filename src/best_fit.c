@@ -12,7 +12,6 @@ void  *get_block(size_t block_size, t_type type) {
     if (allocated_pages->arenas != NULL) {
         best = best_fit(block_size, type);
     }
-    // No arena or arenas full
     if (best == NULL) {
         best = create_arena(type, get_arena_size_with_block(block_size));
     }

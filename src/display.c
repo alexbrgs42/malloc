@@ -74,7 +74,7 @@ void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {
         c = ((unsigned char *)current_metadata)[i];
         ft_printf("%c", hexa[c / 16]);
         ft_printf("%c", hexa[c % 16]);
-        if (i + 1 != current_metadata->size)
+        if (i + 1 != current_metadata->size + sizeof(t_metadata))
             ft_printf("%s", ((i - sizeof(t_metadata) + 1) % 4 == 0 ? "  " : " "));
     }
     ft_printf("\n");

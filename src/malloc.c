@@ -1,8 +1,5 @@
 # include "../include/malloc.h"
 
-t_allocs        *allocated_pages = NULL;
-pthread_mutex_t memory = PTHREAD_MUTEX_INITIALIZER;
-
 void    *malloc(size_t size) {
     size_t  allocated_size;
     void    *ptr;
