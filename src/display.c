@@ -1,5 +1,6 @@
 #include "../include/malloc.h"
 
+/// @brief Shows by increasing address order the allocations of each arenas.
 void    show_alloc_mem() {
     size_t      total;
 
@@ -14,6 +15,8 @@ void    show_alloc_mem() {
     pthread_mutex_unlock(&memory);
 }
 
+/// @brief Shows by increasing address order each arenas and their allocations.
+/// @return 
 int show_ordered_arenas() {
     t_arena    *current;
     t_arena    *ordered;
@@ -40,6 +43,7 @@ int show_ordered_arenas() {
     return total;
 }
 
+/// @brief Shows an hexa dump of the allocations.
 void    show_alloc_mem_ex() {
     t_arena     *current_arena;
     t_metadata  *current_metadata;
@@ -65,6 +69,8 @@ void    show_alloc_mem_ex() {
     pthread_mutex_unlock(&memory);
 }
 
+/// @brief Shows the content in hexadecimal of a given pointer. 
+/// @param current_metadata 
 void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {
     unsigned char   c;
     char            hexa[16] = "0123456789abcdef";
@@ -80,20 +86,8 @@ void    show_hexa_dump_allocated_memory(t_metadata *current_metadata) {
     ft_printf("\n");
 }
 
-void    show_metadata(void *ptr) {
-    t_metadata  *meta;
-    char        *format;
-
-    if (ptr == NULL)
-        return ;
-    meta = (t_metadata *)(ptr - sizeof(t_metadata));
-    format = "METADATA\n--------\naddress: %p\nsize = %ld\nprev = %p\nnext = %p\nis allocated = %s\n\n";
-    while (meta != NULL) {
-        ft_printf(format, meta, meta->size, meta->prev, meta->next, (meta->is_malloc ? "true" : "false"));
-        meta = (t_metadata *)meta->next;
-    }
-}
-
+/// @brief Shows the informations related to an arena (type and address).
+/// @param arena 
 void    show_arena_info(t_arena *arena) {
     void    *start;
 
@@ -101,6 +95,10 @@ void    show_arena_info(t_arena *arena) {
     ft_printf("%s : %p\n", get_arena_text_type(arena), start);
 }
 
+/// @brief Shows the allocations inside the given arena.
+/// @param arena 
+/// @return The total number of bytes allocated inside of the arena
+/// (without counting the alignment and the metadata).
 size_t  show_allocs_in_arena(void *arena) {
     void        *ptr;
     void        *end;

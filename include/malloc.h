@@ -49,11 +49,13 @@ typedef struct s_metadata       t_metadata;
 typedef struct s_allocs         t_allocs;
 typedef struct s_arena          t_arena;
 
+/// @brief global structure containing every mmaped arena and the size of this global structure.
 struct s_allocs {
     t_arena *arenas;
     size_t  mmap_size;
 };
 
+/// @brief The structure of each mmaped arena.
 struct s_arena {
     t_type  type;
     size_t  size;
@@ -61,6 +63,7 @@ struct s_arena {
     t_arena *next;
 };
 
+/// @brief The metadata of each block inside an arena.
 struct s_metadata {
     size_t  size;
     void    *prev;
@@ -114,7 +117,7 @@ void    set_metadata(t_metadata *ptr, size_t size, void *prev, void *next, bool 
 void    *get_block(size_t size, t_type type);
 void    *best_fit(size_t size, t_type type);
 size_t  get_block_size(t_metadata *meta);
-t_arena *get_arena_of_block(t_metadata *meta);
+t_arena *get_arena_of_block(void *meta);
 
 // allocated_pages.c
 void    create_allocated_pages(size_t mmap_size);
@@ -132,7 +135,6 @@ t_arena *get_last_arena();
 void    show_alloc_mem();
 int     show_ordered_arenas();
 void    show_alloc_mem_ex();
-void    show_metadata(void *ptr);
 void    show_hexa_dump_allocated_memory(t_metadata *current_metadata);
 void    show_arena_info(t_arena *arena);
 size_t  show_allocs_in_arena(void *arena);

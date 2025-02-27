@@ -1,9 +1,13 @@
 # include "../include/malloc.h"
 
+/// @brief Creates a new empty arena of the given type.
+/// @param type TINY|SMALL|LARGE
+/// @param size The size needed by the allocation.
+/// @return The address of the new arena or NULL if the mmap syscall failed.
 void  *create_arena(t_type type, size_t size) {
     void    *addr;
     int     ret;
-    
+
     addr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (addr == MAP_FAILED) {
         ft_printf("Error: mmap syscall failed.\n");
@@ -16,6 +20,11 @@ void  *create_arena(t_type type, size_t size) {
     return addr;
 }
 
+/// @brief Adds the given arena to the global structure.
+/// @param addr The address of the arena.
+/// @param type The type of the arena.
+/// @param size The size of the arena.
+/// @return The return status of the mmap syscall.
 int add_arena_to_allocated_pages(void *addr, t_type type, size_t size) {
     int      ret;
     t_arena *new_arena;
@@ -45,6 +54,9 @@ int add_arena_to_allocated_pages(void *addr, t_type type, size_t size) {
     return EXIT_SUCCESS;
 }
 
+/// @brief Stringify the type of a given arena
+/// @param arena 
+/// @return The type name as a string.
 char    *get_arena_text_type(t_arena *arena) {
     t_type  type;
 
@@ -59,6 +71,10 @@ char    *get_arena_text_type(t_arena *arena) {
     }
 }
 
+/// @brief Find the size (and by direct implication the type) of the arena
+/// a block before performing the best fit algorithm.
+/// @param blk_size 
+/// @return 
 size_t  get_arena_size_with_block(size_t blk_size) {
     // TINY
     if (blk_size <= (size_t)(N / 100))
@@ -71,13 +87,12 @@ size_t  get_arena_size_with_block(size_t blk_size) {
 }
 
 /// @brief Get last arena of the linked list. There must be at least one arena.
-/// @return The lst arena of the linked list.
+/// @return The last arena of the linked list.
 t_arena *get_last_arena() {
     t_arena *last_arena;
 
     last_arena = allocated_pages->arenas;
-    while (last_arena->next != NULL) {
+    while (last_arena->next != NULL)
         last_arena = last_arena->next;
-    }
     return last_arena;
 }

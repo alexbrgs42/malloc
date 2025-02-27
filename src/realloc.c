@@ -32,6 +32,11 @@ void    *realloc(void *ptr, size_t size) {
     return ptr;
 }
 
+/// @brief Realloc an increased size allocation that should be relocated 
+/// because of a lack of space at the initial address.
+/// @param ptr The original pointer's address.
+/// @param size The new requested size.
+/// @return Returns the new address of the newly allocated block.
 void    *increase_realloc_at_different_address(void *ptr, size_t size) {
     void    *new_ptr;
 
@@ -46,15 +51,21 @@ void    *increase_realloc_at_different_address(void *ptr, size_t size) {
     return new_ptr;
 }
 
+/// @brief The available total size at the current address for an increase.
+/// @param meta 
+/// @return The available total size.
 size_t  available_size_for_realloc(t_metadata *meta) {
     size_t  size;
     
     size = get_block_size(meta) - sizeof(t_metadata);
     if (meta->next == NULL || ((t_metadata *)meta->next)->is_malloc == true)
         return size;
-    return size + get_block_size(((t_metadata *)meta->next));
+    return size + get_block_size((t_metadata *)meta->next);
 }
 
+/// @brief Fills the new pointer with the data of the original one.
+/// @param new_ptr 
+/// @param ptr 
 void    fill_reallocated_block(void *new_ptr, void *ptr) {
     size_t      size;
     size_t      new_size;
@@ -69,6 +80,10 @@ void    fill_reallocated_block(void *new_ptr, void *ptr) {
         ((char *)new_ptr)[i] = ((char *)ptr)[i];
 }
 
+/// @brief Sets the metadatas after an increase at the same address.
+/// @param ptr 
+/// @param block_size 
+/// @param size 
 void    increase_realloc_at_same_address(void *ptr, size_t block_size, size_t size) {
     t_metadata  *meta;
     t_metadata  *next_meta;
@@ -92,6 +107,10 @@ void    increase_realloc_at_same_address(void *ptr, size_t block_size, size_t si
     set_metadata(ptr, size, meta->prev, ptr + block_size, true);
 }
 
+/// @brief Sets the metadatas after a decrease.
+/// @param ptr 
+/// @param block_size 
+/// @param size 
 void    decrease_realloc(void *ptr, size_t block_size, size_t size) {
     t_metadata  *meta;
     t_metadata  *next_meta;

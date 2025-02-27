@@ -1,5 +1,9 @@
 #include "../include/malloc.h"
 
+/// @brief Find the position of the block that should be allocated.
+/// @param block_size The total size that should be allocated.
+/// @param type The type of arena that should contain the block (TINY|SMALL|LARGE).
+/// @return The address where the allocation should be performed.
 void  *get_block(size_t block_size, t_type type) {
     void  *best;
 
@@ -18,6 +22,11 @@ void  *get_block(size_t block_size, t_type type) {
     return best;
 }
 
+/// @brief The best fit alogorithm searches for the smallest block in which the 
+/// requested allocation can fit (i.e. the best one).
+/// @param block_size The total size that should be allocated.
+/// @param type The type of arena that should contain the block (TINY|SMALL|LARGE).
+/// @return The address where the allocation should be performed.
 void  *best_fit(size_t block_size, t_type type) {
     void    *head;
     void    *best;
@@ -39,30 +48,4 @@ void  *best_fit(size_t block_size, t_type type) {
         arena = arena->next;
     }
     return best;
-}
-
-size_t  get_block_size(t_metadata *meta) {
-    t_arena *arena;
-
-    if (meta->next == NULL) {
-        arena = get_arena_of_block(meta);
-        if (arena == NULL)
-            return 0;
-        return (size_t)(arena->addr + arena->size - (void *)meta);
-    }
-    return (size_t)(meta->next - (void *)meta);
-}
-
-t_arena *get_arena_of_block(t_metadata *meta) {
-    t_arena    *arena;
-
-    if (allocated_pages == NULL)
-        return NULL;
-    arena = allocated_pages->arenas;
-    while (arena != NULL) {
-        if ((void *)meta >= arena->addr && (void *)meta < arena->addr + arena->size)
-            return arena;
-        arena = arena->next;
-    }
-    return NULL;
 }

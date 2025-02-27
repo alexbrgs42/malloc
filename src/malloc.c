@@ -23,9 +23,15 @@ void    *malloc(size_t size) {
     return ptr;
 }
 
+/// @brief Perform the tiny and small allocations by searching for the best block
+/// and seting the needed metadatas.
+/// @param block_size The total size needed (requested size + metadata + alignment).
+/// @param size The requested size.
+/// @param type 
+/// @return The address of the requested pointer.
 void    *tiny_small_allocation(size_t block_size, size_t size, t_type type) {
     void    *ptr;
-    
+
     ptr = get_block(block_size, type);
     if (ptr == NULL)
         return NULL;
@@ -33,10 +39,14 @@ void    *tiny_small_allocation(size_t block_size, size_t size, t_type type) {
     return (ptr + sizeof(t_metadata));
 }
 
+/// @brief Perform the large allocations by mmaping an arena.
+/// @param block_size The total size needed (requested size + metadata + alignment).
+/// @param size The requested size.
+/// @return The address of the requested pointer.
 void    *large_allocation(size_t block_size, size_t size) {
     int     ret;
     void    *ptr;
-    
+
     ptr = mmap(NULL, block_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (ptr == MAP_FAILED) {
         ft_printf("Error: mmap syscall failed.\n");

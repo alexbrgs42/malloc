@@ -1,5 +1,7 @@
 # include "../include/malloc.h"
 
+/// @brief Allocates the global structure and initialize it for the first allocation.
+/// @param mmap_size The initial size of the mmap.
 void    create_allocated_pages(size_t mmap_size) {
     allocated_pages = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
     if (allocated_pages == MAP_FAILED) {
@@ -11,6 +13,8 @@ void    create_allocated_pages(size_t mmap_size) {
     allocated_pages->mmap_size = mmap_size;
 }
 
+/// @brief Increase the size of the global structureby a fixed size.
+/// @return mmap return status.
 int resize_allocated_pages() {
     size_t      mmap_size;
     t_allocs    *old_allocated_pages;
@@ -25,6 +29,9 @@ int resize_allocated_pages() {
     return EXIT_SUCCESS;
 }
 
+/// @brief Copies the content of the global structure to the 
+/// bigger new one by adding each arenas one by one.
+/// @param old_allocated_pages Old global structure.
 void    copy_allocated_pages_content(t_allocs *old_allocated_pages) {
     t_arena *curr;
 
