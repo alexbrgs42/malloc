@@ -1,10 +1,8 @@
 # malloc
 
-
 ## 📖 About
 
 I implemented my Dynamic Allocation Memory Management Library using C and a limited access to its functions !
-
 
 ## 📚 Resources
 
@@ -14,7 +12,7 @@ I implemented my Dynamic Allocation Memory Management Library using C and a limi
 
 |✅ `malloc`, `realloc`, `calloc` :|
 |------------------------------|
-  - **AREAS**: Based on its size each allocation can either be stored on a **TINY AREA** or **SMALL AREA** which both have a capacity of at most 100 allocations, or in a **LARGE AREA** only maped for this allocation.|
+  - **AREAS**: Based on its size each allocation can either be stored on a **TINY AREA** or **SMALL AREA** which both have a capacity of at most 100 allocations, or in a **LARGE AREA** only maped for this allocation.
   - **BEST FIT**: To find the position in **TINY** and **SMALL** areas, the best fit algorithm is performed in avoiding waste of space.
   - **ALIGNEMENT**: Memory is aligned in order to work with real programs.
   - **THREAD SAFE**: use of `mutex`.
@@ -23,14 +21,13 @@ I implemented my Dynamic Allocation Memory Management Library using C and a limi
 |-------|
   - **DEFRAGMENTATION**: Freed memory is defragmented, merging with their left and/or right free neighbours if they exist.
   - **OPTIMIZATION**: After a first allocation, if every page is freed, an area will remain maped to prevent a loss of efficiency and an astonishing number of total page reclaims.
-  - **THREAD SAFE**: use of `mutex`
+  - **THREAD SAFE**: use of `mutex`.
 
 |✅ `show_alloc_mem` :|
 |-----------------|
   - **VISUALS**: State of the allocated memory zones.
 
     <img width="290" height="135" alt="Screenshot from 2025-07-23 15-56-03" src="https://github.com/user-attachments/assets/0c3ce659-f5df-4d04-ad85-0de96b662a45" />
-
 
 ## 🛠️ Installation
 
