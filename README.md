@@ -12,20 +12,20 @@ I implemented my Dynamic Allocation Memory Management Library using C and a limi
 
 ## 💡 Features 
 
-|`malloc`, `realloc`, `calloc` :|
+|✅ `malloc`, `realloc`, `calloc` :|
 |------------------------------|
   - **AREAS**: Based on its size each allocation can either be stored on a **TINY AREA** or **SMALL AREA** which both have a capacity of at most 100 allocations, or in a **LARGE AREA** only maped for this allocation.|
   - **BEST FIT**: To find the position in **TINY** and **SMALL** areas, the best fit algorithm is performed in avoiding waste of space.
   - **ALIGNEMENT**: Memory is aligned in order to work with real programs.
   - **THREAD SAFE**: use of `mutex`.
 
-|`free` :|
+|✅ `free` :|
 |-------|
   - **DEFRAGMENTATION**: Freed memory is defragmented, merging with their left and/or right free neighbours if they exist.
   - **OPTIMIZATION**: After a first allocation, if every page is freed, an area will remain maped to prevent a loss of efficiency and an astonishing number of total page reclaims.
   - **THREAD SAFE**: use of `mutex`
 
-|`show_alloc_mem` :|
+|✅ `show_alloc_mem` :|
 |-----------------|
   - **VISUALS**: State of the allocated memory zones.
 
